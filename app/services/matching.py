@@ -126,12 +126,7 @@ class MatchingEngine:
             return MatchReason(
                 factor="budget", matched=False, points=0, message="Бюджет заказа не указан"
             )
-        effective_lower = lower if lower is not None else upper
-        effective_upper = upper if upper is not None else lower
-        assert effective_lower is not None and effective_upper is not None
-        overlaps = self._ranges_overlap(
-            profile.min_budget, profile.max_budget, effective_lower, effective_upper
-        )
+        overlaps = self._ranges_overlap(profile.min_budget, profile.max_budget, lower, upper)
         return MatchReason(
             factor="budget",
             matched=overlaps,
@@ -156,9 +151,9 @@ class MatchingEngine:
     def _ranges_overlap(
         wanted_min: Decimal | None,
         wanted_max: Decimal | None,
-        actual_min: Decimal,
-        actual_max: Decimal,
+        actual_min: Decimal | None,
+        actual_max: Decimal | None,
     ) -> bool:
-        return (wanted_min is None or actual_max >= wanted_min) and (
-            wanted_max is None or actual_min <= wanted_max
+        return (wanted_min is None or actual_max is None or actual_max >= wanted_min) and (
+            wanted_max is None or actual_min is None or actual_min <= wanted_max
         )

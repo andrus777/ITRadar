@@ -1,3 +1,4 @@
+from sqlalchemy import func
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -41,8 +42,14 @@ class MatchRepository:
             .values(**values)
             .on_conflict_do_update(
                 constraint="uq_matches_profile_opportunity",
-                set_={"score": result.score, "reasons": values["reasons"]},
+                set_={
+                    "score": result.score,
+                    "reasons": values["reasons"],
+                    "matched_at": func.clock_timestamp(),
+                    "updated_at": func.clock_timestamp(),
+                },
             )
             .returning(Match)
+            .execution_options(populate_existing=True)
         )
         return (await self.session.scalars(statement)).one()

@@ -78,6 +78,30 @@ def test_budget_outside_profile_loses_budget_points() -> None:
     assert "вне диапазона" in budget.message
 
 
+def test_open_ended_budget_from_overlaps_profile() -> None:
+    result = MatchingEngine().calculate(
+        profile(min_budget=Decimal("200000"), max_budget=Decimal("300000")),
+        opportunity(budget_from=Decimal("150000"), budget_to=None),
+        analysis(),
+    )
+
+    budget = next(reason for reason in result.reasons if reason.factor == "budget")
+    assert budget.matched is True
+    assert budget.points == MatchingEngine.BUDGET_POINTS
+
+
+def test_open_ended_budget_up_to_overlaps_profile() -> None:
+    result = MatchingEngine().calculate(
+        profile(min_budget=Decimal("100000"), max_budget=Decimal("200000")),
+        opportunity(budget_from=None, budget_to=Decimal("150000")),
+        analysis(),
+    )
+
+    budget = next(reason for reason in result.reasons if reason.factor == "budget")
+    assert budget.matched is True
+    assert budget.points == MatchingEngine.BUDGET_POINTS
+
+
 def test_blacklist_forces_zero_score() -> None:
     result = MatchingEngine().calculate(
         profile(), opportunity(description="Доработка WordPress сайта"), analysis()

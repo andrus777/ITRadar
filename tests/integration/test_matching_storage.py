@@ -63,14 +63,17 @@ async def test_match_score_and_reasons_are_upserted() -> None:
             matching = MatchingEngine(session)
 
             first = await matching.calculate_and_store(profile, opportunity, analysis)
+            first_matched_at = first.matched_at
+            analysis.technologies = ["Java"]
             repeated = await matching.calculate_and_store(profile, opportunity, analysis)
             count = await session.scalar(select(func.count()).select_from(Match))
 
-            assert first.score == 100
+            assert repeated.score == 65
             assert repeated.id == first.id
             assert count == 1
             assert repeated.reasons[0]["factor"] == "technologies"
-            assert "Совпали технологии" in repeated.reasons[0]["message"]
+            assert "не найдены" in repeated.reasons[0]["message"]
+            assert repeated.matched_at > first_matched_at
 
             await session.close()
             await transaction.rollback()
