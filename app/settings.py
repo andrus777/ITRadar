@@ -19,9 +19,14 @@ class Settings(BaseSettings):
     database_url: str = Field(
         default="postgresql+asyncpg://it_radar:it_radar@localhost:5432/it_radar"
     )
+    jobicy_enabled: bool = True
+    jobicy_timeout_seconds: float = Field(default=30, gt=0)
+    remoteok_enabled: bool = True
+    remoteok_timeout_seconds: float = Field(default=30, gt=0)
+    weworkremotely_enabled: bool = True
+    weworkremotely_timeout_seconds: float = Field(default=30, gt=0)
 
 
 @lru_cache
 def get_settings() -> Settings:
     return Settings()
-

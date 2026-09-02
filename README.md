@@ -147,6 +147,40 @@ python -m app.collectors.cli jobicy --count 20 --tag python
 Доступны также фильтры `--geo` и `--industry`. CLI выводит JSON со статусом run,
 числом полученных и новых карточек и возможной частичной ошибкой.
 
+### Дополнительные публичные источники
+
+- [Remote OK](https://remoteok.com/api) — официальный публичный JSON feed без
+  авторизации. При отображении записи необходимо указывать Remote OK и сохранять
+  прямую follow-ссылку на исходную карточку.
+- [We Work Remotely](https://weworkremotely.com/remote-job-rss-feed) — официальный
+  публичный RSS. Используется programming feed; WWR просит указывать источник и
+  оставлять ссылку на исходное объявление.
+
+Оба источника используют тот же `CollectorAdapter` и проходят через общий
+`CollectorService`, нормализацию и cross-source дедупликацию. Ручной запуск:
+
+```powershell
+python -m app.collectors.cli remoteok --count 20 --tag python
+python -m app.collectors.cli weworkremotely --count 20
+python -m app.collectors.cli all
+```
+
+Команда `all` запускает только включённые источники. Доступность и сетевые таймауты
+настраиваются без изменения кода:
+
+```dotenv
+IT_RADAR_JOBICY_ENABLED=true
+IT_RADAR_JOBICY_TIMEOUT_SECONDS=30
+IT_RADAR_REMOTEOK_ENABLED=true
+IT_RADAR_REMOTEOK_TIMEOUT_SECONDS=30
+IT_RADAR_WEWORKREMOTELY_ENABLED=true
+IT_RADAR_WEWORKREMOTELY_TIMEOUT_SECONDS=30
+```
+
+Каждый запуск создаёт отдельную строку `collection_runs`, связанную с конкретным
+`source_id`, и сохраняет `status`, `fetched_count`, `new_count` и `error`. CLI также
+возвращает эту статистику отдельно для каждого источника.
+
 ## Конфигурация
 
 Настройки приложения читаются из переменных окружения с префиксом `IT_RADAR_` и
@@ -175,3 +209,6 @@ python -m app.collectors.cli jobicy --count 20 --tag python
 - Общая нормализация HTML, пробелов, URL, валют и бюджетных диапазонов.
 - Cross-source дедупликация по URL, fingerprint и консервативной схожести текста.
 - Связь `duplicate_of_id`, сохраняющая исходные записи каждого источника.
+- Адаптеры Remote OK JSON и We Work Remotely RSS без source-specific логики в pipeline.
+- Registry источников с env-переключателями enabled/disabled и отдельными таймаутами.
+- Команда запуска всех enabled-источников и статистика collection run по каждому из них.

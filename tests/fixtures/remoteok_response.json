@@ -1,0 +1,30 @@
+[
+  {
+    "last_updated": 1788339618,
+    "legal": "Public feed fixture; link back to Remote OK."
+  },
+  {
+    "id": "910001",
+    "slug": "remote-python-api-engineer-example-software-910001",
+    "date": "2026-09-01T12:00:00+00:00",
+    "company": "Example Software",
+    "position": "Python API Engineer",
+    "description": "<p>Build async Python integrations.</p>",
+    "location": "Worldwide",
+    "salary_min": 80000,
+    "salary_max": 120000,
+    "url": "https://remoteok.com/remote-jobs/remote-python-api-engineer-example-software-910001"
+  },
+  {
+    "id": "910002",
+    "slug": "remote-backend-developer-example-studio-910002",
+    "date": "2026-09-01T13:00:00+00:00",
+    "company": "Example Studio",
+    "position": "Backend Developer",
+    "description": "<p>Maintain backend services.</p>",
+    "location": "Europe",
+    "salary_min": 0,
+    "salary_max": 0,
+    "url": "https://remoteok.com/remote-jobs/remote-backend-developer-example-studio-910002"
+  }
+]

@@ -25,6 +25,7 @@ class JobicyCollector(CollectorAdapter):
         geo: str | None = None,
         industry: str | None = None,
         tag: str | None = None,
+        timeout_seconds: float = 30,
         client: httpx.AsyncClient | None = None,
     ) -> None:
         if not 1 <= count <= 200:
@@ -33,6 +34,7 @@ class JobicyCollector(CollectorAdapter):
         self.geo = geo
         self.industry = industry
         self.tag = tag
+        self.timeout_seconds = timeout_seconds
         self.client = client
 
     async def fetch(self) -> list[CollectedItem]:
@@ -50,7 +52,7 @@ class JobicyCollector(CollectorAdapter):
             return self._parse_response(await self.client.get(self.endpoint, params=params))
 
         headers = {"User-Agent": "ITRadar/0.1 (+https://github.com/andrus777/ITRadar)"}
-        async with httpx.AsyncClient(timeout=30, headers=headers) as client:
+        async with httpx.AsyncClient(timeout=self.timeout_seconds, headers=headers) as client:
             return self._parse_response(await client.get(self.endpoint, params=params))
 
     def normalize(self, item: CollectedItem) -> NormalizedOpportunity:

@@ -3,9 +3,13 @@ import asyncio
 import json
 from collections.abc import Sequence
 
-from app.collectors import JobicyCollector
+from app.collectors.jobicy import JobicyCollector
+from app.collectors.registry import configured_collectors
+from app.collectors.remoteok import RemoteOKCollector
+from app.collectors.weworkremotely import WeWorkRemotelyCollector
 from app.db import async_session_factory
 from app.services import CollectorService
+from app.settings import get_settings
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -16,35 +20,55 @@ def build_parser() -> argparse.ArgumentParser:
     jobicy.add_argument("--geo")
     jobicy.add_argument("--industry")
     jobicy.add_argument("--tag")
+    remoteok = subparsers.add_parser("remoteok", help="Collect from Remote OK JSON")
+    remoteok.add_argument("--count", type=int, default=20)
+    remoteok.add_argument("--tag")
+    weworkremotely = subparsers.add_parser(
+        "weworkremotely", help="Collect from We Work Remotely RSS"
+    )
+    weworkremotely.add_argument("--count", type=int, default=20)
+    subparsers.add_parser("all", help="Run every enabled collector")
     return parser
 
 
 async def run(args: argparse.Namespace) -> int:
-    if args.source != "jobicy":
-        raise ValueError(f"unsupported source: {args.source}")
+    collectors = configured_collectors(get_settings())
+    if args.source == "all":
+        selected = collectors
+    else:
+        if args.source not in collectors:
+            print(json.dumps({"source": args.source, "status": "disabled"}))
+            return 2
+        adapter = collectors[args.source]
+        adapter.count = args.count
+        if isinstance(adapter, (JobicyCollector, RemoteOKCollector)):
+            adapter.tag = args.tag
+        if isinstance(adapter, JobicyCollector):
+            adapter.geo = args.geo
+            adapter.industry = args.industry
+        if not isinstance(
+            adapter, (JobicyCollector, RemoteOKCollector, WeWorkRemotelyCollector)
+        ):
+            raise TypeError(f"unsupported configured collector: {type(adapter).__name__}")
+        selected = {args.source: adapter}
 
-    adapter = JobicyCollector(
-        count=args.count,
-        geo=args.geo,
-        industry=args.industry,
-        tag=args.tag,
-    )
+    results: list[dict[str, object]] = []
     async with async_session_factory() as session:
-        result = await CollectorService(session).run(adapter)
-        await session.commit()
-        print(
-            json.dumps(
+        for source_name, adapter in selected.items():
+            result = await CollectorService(session).run(adapter)
+            await session.commit()
+            results.append(
                 {
+                    "source": source_name,
                     "run_id": result.id,
                     "status": result.status,
                     "fetched_count": result.fetched_count,
                     "new_count": result.new_count,
                     "error": result.error,
-                },
-                ensure_ascii=False,
+                }
             )
-        )
-    return 0 if result.status in {"success", "partial_failed"} else 1
+    print(json.dumps(results, ensure_ascii=False))
+    return 0 if all(item["status"] in {"success", "partial_failed"} for item in results) else 1
 
 
 def main(argv: Sequence[str] | None = None) -> int:
