@@ -6,6 +6,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.collectors import CollectorAdapter
 from app.db.repositories import CollectionRunRepository
 from app.models import CollectionRun
+from app.services.deduplication import DeduplicationService
+from app.services.normalization import OpportunityNormalizationService
 from app.services.opportunity_storage import OpportunityStorageService
 
 
@@ -16,6 +18,8 @@ class CollectorService:
         self.session = session
         self.storage = OpportunityStorageService(session)
         self.runs = CollectionRunRepository(session)
+        self.normalizer = OpportunityNormalizationService()
+        self.deduplication = DeduplicationService(session)
 
     async def run(self, adapter: CollectorAdapter) -> CollectionRun:
         source = await self.storage.ensure_source(
@@ -54,10 +58,15 @@ class CollectorService:
                 continue
 
             try:
-                normalized = adapter.normalize(item)
+                normalized = self.normalizer.normalize(adapter.normalize(item))
                 async with self.session.begin_nested():
+                    duplicate = await self.deduplication.find_duplicate(
+                        source_id=source.id,
+                        opportunity=normalized,
+                    )
                     _, created = await self.storage.store_opportunity_with_created(
                         source_id=source.id,
+                        duplicate_of_id=duplicate.id if duplicate else None,
                         **normalized.model_dump(),
                     )
                 new_count += int(created)

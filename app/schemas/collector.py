@@ -10,6 +10,8 @@ class CollectedItem(BaseModel):
 
     external_id: str = Field(min_length=1, max_length=255)
     url: str = Field(min_length=1, max_length=2048)
+    normalized_url: str | None = Field(default=None, max_length=2048)
+    normalized_title: str | None = Field(default=None, max_length=500)
     payload: dict[str, Any]
     fetched_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
@@ -32,6 +34,7 @@ class NormalizedOpportunity(BaseModel):
     budget_to: Decimal | None = Field(default=None, ge=0)
     currency: str | None = Field(default=None, min_length=3, max_length=3)
     budget_text: str | None = Field(default=None, max_length=255)
+    budget_negotiable: bool = False
     published_at: datetime | None = None
     fetched_at: datetime
     customer_name: str | None = Field(default=None, max_length=255)
