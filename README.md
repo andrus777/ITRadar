@@ -224,6 +224,38 @@ Score состоит из фиксированных независимых бл
 бюджет и remote — из нормализованной opportunity. Повторный расчёт пары
 профиль–заказ обновляет существующую строку, а не создаёт дубль.
 
+## Telegram-бот
+
+Бот на aiogram 3 предоставляет команды `/start`, `/profile`, `/latest`, `/top` и
+`/help`. Возможности показываются по одной карточке; inline-кнопки переключают
+карточки и открывают каноническую ссылку исходного объявления. `/top` сортируется
+по score текущего профиля, `/latest` — по дате публикации.
+
+Создайте MVP-профиль администратора после применения миграций:
+
+```powershell
+python -m app.bot.profile_cli --name "Python developer" `
+  --technologies "python,fastapi,postgresql" `
+  --categories "backend" --min-budget 100000 --remote-only
+```
+
+Команда выведет ID. Добавьте его и Telegram Bot API token в `.env`:
+
+```dotenv
+IT_RADAR_TELEGRAM_BOT_TOKEN=replace-with-bot-token
+IT_RADAR_TELEGRAM_DEFAULT_PROFILE_ID=1
+```
+
+Запуск long polling:
+
+```powershell
+python -m app.bot.cli
+```
+
+Handlers не обращаются к SQL: чтение карточек и профиля проходит через browser
+service и repository. Отсутствующие бюджет, AI-summary, score и reasons отображаются
+без ошибки и с понятным placeholder.
+
 ## Конфигурация
 
 Настройки приложения читаются из переменных окружения с префиксом `IT_RADAR_` и
@@ -260,3 +292,5 @@ Score состоит из фиксированных независимых бл
 - Таблица `ai_analyses`, сохраняющая успешные результаты и изолированные ошибки.
 - Профили интересов с технологиями, категориями, бюджетом, blacklist и remote-only.
 - Детерминированный matching 0–100 с сохраняемыми понятными reasons.
+- Telegram-браузер возможностей на aiogram 3 с `/latest`, score-сортировкой `/top`
+  и inline-пагинацией.

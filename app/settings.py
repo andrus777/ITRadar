@@ -30,6 +30,8 @@ class Settings(BaseSettings):
     ai_model: str = "gpt-5-mini"
     ai_prompt_version: str = "v1"
     ai_timeout_seconds: float = Field(default=60, gt=0)
+    telegram_bot_token: SecretStr | None = None
+    telegram_default_profile_id: int | None = Field(default=None, gt=0)
 
 
 @lru_cache
