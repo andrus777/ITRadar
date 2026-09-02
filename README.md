@@ -256,6 +256,43 @@ Handlers не обращаются к SQL: чтение карточек и пр
 service и repository. Отсутствующие бюджет, AI-summary, score и reasons отображаются
 без ошибки и с понятным placeholder.
 
+## Планировщик и ежедневный дайджест
+
+`SchedulerService` по расписанию запускает единый pipeline: все enabled-сборщики,
+AI-классификацию новых или изменившихся заказов, matching и Telegram-дайджест.
+Каждый источник выполняется в отдельной транзакции, поэтому его ошибка фиксируется
+в отчёте и не блокирует следующие источники или этапы.
+
+Дайджест выбирает только matches с `score` не ниже порога и пустым `notified_at`.
+После успешной отправки сохраняется время уведомления; повторный запуск их не отправит.
+Выборка блокируется через `FOR UPDATE SKIP LOCKED`, защищая от параллельных scheduler runs.
+
+Настройки расписания и дайджеста:
+
+```dotenv
+IT_RADAR_TELEGRAM_DIGEST_CHAT_ID=123456789
+IT_RADAR_DIGEST_MIN_SCORE=70
+IT_RADAR_DIGEST_BATCH_SIZE=20
+IT_RADAR_SCHEDULER_ENABLED=true
+IT_RADAR_SCHEDULER_CRON=0 9 * * *
+IT_RADAR_SCHEDULER_TIMEZONE=Europe/Moscow
+```
+
+Полный pipeline вручную одной командой:
+
+```powershell
+python -m app.scheduler.cli run
+```
+
+Запуск постоянного scheduler-процесса:
+
+```powershell
+python -m app.scheduler.cli schedule
+```
+
+При `docker compose up --build` scheduler запускается отдельным сервисом вместе с
+PostgreSQL и API.
+
 ## Конфигурация
 
 Настройки приложения читаются из переменных окружения с префиксом `IT_RADAR_` и
@@ -294,3 +331,4 @@ service и repository. Отсутствующие бюджет, AI-summary, scor
 - Детерминированный matching 0–100 с сохраняемыми понятными reasons.
 - Telegram-браузер возможностей на aiogram 3 с `/latest`, score-сортировкой `/top`
   и inline-пагинацией.
+- Ежедневный scheduler pipeline и идемпотентный Telegram-дайджест с `notified_at`.

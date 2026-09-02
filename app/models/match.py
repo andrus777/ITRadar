@@ -22,6 +22,7 @@ class Match(TimestampMixin, Base):
         Index("ix_matches_user_profile_id", "user_profile_id"),
         Index("ix_matches_opportunity_id", "opportunity_id"),
         Index("ix_matches_score", "score"),
+        Index("ix_matches_notified_at", "notified_at"),
     )
 
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -32,6 +33,7 @@ class Match(TimestampMixin, Base):
     matched_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )
+    notified_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
     profile: Mapped["UserProfile"] = relationship(back_populates="matches")
     opportunity: Mapped["Opportunity"] = relationship(back_populates="matches")

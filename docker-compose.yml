@@ -27,5 +27,27 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
+  scheduler:
+    build: .
+    command: ["sh", "-c", "alembic upgrade head && python -m app.scheduler.cli schedule"]
+    environment:
+      IT_RADAR_DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-it_radar}:${POSTGRES_PASSWORD:-it_radar}@db:5432/${POSTGRES_DB:-it_radar}
+      IT_RADAR_AI_API_KEY: ${IT_RADAR_AI_API_KEY:-}
+      IT_RADAR_AI_BASE_URL: ${IT_RADAR_AI_BASE_URL:-https://api.openai.com/v1}
+      IT_RADAR_AI_MODEL: ${IT_RADAR_AI_MODEL:-gpt-5-mini}
+      IT_RADAR_AI_PROMPT_VERSION: ${IT_RADAR_AI_PROMPT_VERSION:-v1}
+      IT_RADAR_TELEGRAM_BOT_TOKEN: ${IT_RADAR_TELEGRAM_BOT_TOKEN:-}
+      IT_RADAR_TELEGRAM_DEFAULT_PROFILE_ID: ${IT_RADAR_TELEGRAM_DEFAULT_PROFILE_ID:-1}
+      IT_RADAR_TELEGRAM_DIGEST_CHAT_ID: ${IT_RADAR_TELEGRAM_DIGEST_CHAT_ID:-}
+      IT_RADAR_DIGEST_MIN_SCORE: ${IT_RADAR_DIGEST_MIN_SCORE:-70}
+      IT_RADAR_DIGEST_BATCH_SIZE: ${IT_RADAR_DIGEST_BATCH_SIZE:-20}
+      IT_RADAR_SCHEDULER_ENABLED: ${IT_RADAR_SCHEDULER_ENABLED:-true}
+      IT_RADAR_SCHEDULER_CRON: ${IT_RADAR_SCHEDULER_CRON:-0 9 * * *}
+      IT_RADAR_SCHEDULER_TIMEZONE: ${IT_RADAR_SCHEDULER_TIMEZONE:-Europe/Moscow}
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
 volumes:
   postgres_data:

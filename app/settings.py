@@ -11,6 +11,7 @@ class Settings(BaseSettings):
         env_file=".env",
         env_file_encoding="utf-8",
         env_prefix="IT_RADAR_",
+        env_ignore_empty=True,
         extra="ignore",
     )
 
@@ -32,6 +33,12 @@ class Settings(BaseSettings):
     ai_timeout_seconds: float = Field(default=60, gt=0)
     telegram_bot_token: SecretStr | None = None
     telegram_default_profile_id: int | None = Field(default=None, gt=0)
+    telegram_digest_chat_id: int | None = None
+    digest_min_score: int = Field(default=70, ge=0, le=100)
+    digest_batch_size: int = Field(default=20, gt=0, le=100)
+    scheduler_enabled: bool = True
+    scheduler_cron: str = "0 9 * * *"
+    scheduler_timezone: str = "Europe/Moscow"
 
 
 @lru_cache

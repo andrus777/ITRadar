@@ -39,7 +39,7 @@ class OpportunityBrowserService:
             offset=safe_page,
             limit=2,
         )
-        card = self._card(rows[0]) if rows else None
+        card = self.card_from_row(rows[0]) if rows else None
         return OpportunityPage(
             card=card,
             page=safe_page,
@@ -48,7 +48,7 @@ class OpportunityBrowserService:
         )
 
     @staticmethod
-    def _card(row: OpportunityCardRow) -> OpportunityCard:
+    def card_from_row(row: OpportunityCardRow) -> OpportunityCard:
         reasons = [
             str(reason.get("message")) for reason in (row.reasons or []) if reason.get("message")
         ]

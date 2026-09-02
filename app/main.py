@@ -11,4 +11,3 @@ app = FastAPI(title=settings.app_name)
 async def health() -> dict[str, str]:
     """Return the basic application liveness status."""
     return {"status": "ok"}
-

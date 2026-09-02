@@ -1,2 +1,1 @@
 """IT Radar test suite."""
-

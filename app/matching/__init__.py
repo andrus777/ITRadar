@@ -1,2 +1,1 @@
 """Opportunity matching package."""
-
