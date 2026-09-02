@@ -15,6 +15,10 @@ class OpportunityRepository:
         return await self.session.get(Opportunity, opportunity_id)
 
     async def add_or_get(self, **values: Any) -> Opportunity:
+        opportunity, _ = await self.add_or_get_with_created(**values)
+        return opportunity
+
+    async def add_or_get_with_created(self, **values: Any) -> tuple[Opportunity, bool]:
         statement = (
             insert(Opportunity)
             .values(**values)
@@ -23,10 +27,10 @@ class OpportunityRepository:
         )
         opportunity = (await self.session.scalars(statement)).first()
         if opportunity is not None:
-            return opportunity
+            return opportunity, True
 
         query = select(Opportunity).where(
             Opportunity.source_id == values["source_id"],
             Opportunity.external_id == values["external_id"],
         )
-        return (await self.session.scalars(query)).one()
+        return (await self.session.scalars(query)).one(), False

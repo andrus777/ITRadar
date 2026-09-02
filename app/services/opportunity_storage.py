@@ -42,3 +42,8 @@ class OpportunityStorageService:
 
     async def store_opportunity(self, **values: Any) -> Opportunity:
         return await self.opportunities.add_or_get(**values)
+
+    async def store_opportunity_with_created(
+        self, **values: Any
+    ) -> tuple[Opportunity, bool]:
+        return await self.opportunities.add_or_get_with_created(**values)

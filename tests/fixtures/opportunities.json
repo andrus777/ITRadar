@@ -1,0 +1,31 @@
+[
+  {
+    "external_id": "json-1",
+    "url": "https://fixture.invalid/jobs/json-1",
+    "payload": {
+      "title": "Python API integration",
+      "description": "Build an async API integration",
+      "published_at": "2026-08-31T10:00:00Z",
+      "budget_from": "100000",
+      "budget_to": "250000",
+      "currency": "rub",
+      "remote": true
+    }
+  },
+  {
+    "external_id": "json-2",
+    "url": "https://fixture.invalid/jobs/json-2",
+    "payload": {
+      "title": "PostgreSQL data service",
+      "description": "Design a reliable storage service",
+      "published_at": "2026-09-01T08:30:00+00:00"
+    }
+  },
+  {
+    "external_id": "json-broken",
+    "url": "https://fixture.invalid/jobs/json-broken",
+    "payload": {
+      "description": "This fixture intentionally has no title"
+    }
+  }
+]
