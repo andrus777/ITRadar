@@ -1,0 +1,78 @@
+import os
+from decimal import Decimal
+from uuid import uuid4
+
+import pytest
+from sqlalchemy import func, select
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
+
+from app.db.repositories import UserProfileRepository
+from app.models import AIAnalysis, Match
+from app.schemas import UserProfileCreate
+from app.services import MatchingEngine, OpportunityStorageService
+
+pytestmark = pytest.mark.integration
+
+
+@pytest.mark.asyncio
+async def test_match_score_and_reasons_are_upserted() -> None:
+    database_url = os.getenv("IT_RADAR_TEST_DATABASE_URL")
+    if not database_url:
+        pytest.skip("IT_RADAR_TEST_DATABASE_URL is not configured")
+
+    engine = create_async_engine(database_url)
+    try:
+        async with engine.connect() as connection, connection.begin() as transaction:
+            session = AsyncSession(bind=connection, expire_on_commit=False)
+            storage = OpportunityStorageService(session)
+            source = await storage.ensure_source(
+                code=f"match-{uuid4().hex}", name="Match Test", base_url="https://example.test"
+            )
+            opportunity = await storage.store_opportunity(
+                source_id=source.id,
+                external_id="one",
+                title="Python API",
+                description="Backend service",
+                url="https://example.test/one",
+                budget_from=Decimal("150000"),
+                budget_to=Decimal("250000"),
+                remote=True,
+                fingerprint="c" * 64,
+            )
+            profile = await UserProfileRepository(session).create(
+                UserProfileCreate(
+                    name="Python developer",
+                    technologies=[" Python "],
+                    categories=["BACKEND"],
+                    min_budget=Decimal("100000"),
+                    remote_only=True,
+                )
+            )
+            analysis = AIAnalysis(
+                opportunity_id=opportunity.id,
+                status="success",
+                summary="Backend API",
+                category="backend",
+                technologies=["Python"],
+                model="mock",
+                prompt_version="v1",
+                input_hash="d" * 64,
+            )
+            session.add(analysis)
+            await session.flush()
+            matching = MatchingEngine(session)
+
+            first = await matching.calculate_and_store(profile, opportunity, analysis)
+            repeated = await matching.calculate_and_store(profile, opportunity, analysis)
+            count = await session.scalar(select(func.count()).select_from(Match))
+
+            assert first.score == 100
+            assert repeated.id == first.id
+            assert count == 1
+            assert repeated.reasons[0]["factor"] == "technologies"
+            assert "Совпали технологии" in repeated.reasons[0]["message"]
+
+            await session.close()
+            await transaction.rollback()
+    finally:
+        await engine.dispose()
