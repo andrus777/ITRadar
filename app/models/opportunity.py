@@ -39,6 +39,7 @@ class Opportunity(TimestampMixin, Base):
     budget_from: Mapped[Decimal | None] = mapped_column(Numeric(14, 2))
     budget_to: Mapped[Decimal | None] = mapped_column(Numeric(14, 2))
     currency: Mapped[str | None] = mapped_column(String(3))
+    budget_text: Mapped[str | None] = mapped_column(String(255))
     published_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     fetched_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False

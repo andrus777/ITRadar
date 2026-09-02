@@ -1,0 +1,42 @@
+{
+  "apiVersion": "2.0",
+  "jobs": [
+    {
+      "id": 900001,
+      "url": "https://jobicy.com/jobs/example-python-api-engineer",
+      "jobSlug": "example-python-api-engineer",
+      "jobTitle": "Python API Engineer",
+      "companyName": "Example Software Company",
+      "jobIndustry": ["Engineering"],
+      "jobType": ["contract"],
+      "jobGeo": "Anywhere",
+      "jobLevel": "Senior",
+      "jobExcerpt": "Build public API integrations.",
+      "jobDescription": "<p>Build <strong>async Python</strong> integrations.</p><ul><li>FastAPI</li><li>PostgreSQL</li></ul>",
+      "pubDate": "2026-08-31T10:00:00Z",
+      "salaryMin": 80000,
+      "salaryMax": 120000,
+      "salaryCurrency": "USD",
+      "salaryPeriod": "yearly"
+    },
+    {
+      "id": 900002,
+      "url": "https://jobicy.com/jobs/example-backend-developer",
+      "jobSlug": "example-backend-developer",
+      "jobTitle": "Backend Developer",
+      "companyName": "Example Product Studio",
+      "jobIndustry": ["Engineering"],
+      "jobType": ["full-time"],
+      "jobGeo": "Europe",
+      "jobDescription": "<p>Develop backend services.</p>",
+      "pubDate": "2026-09-01T08:00:00+00:00"
+    },
+    {
+      "id": 900003,
+      "url": "https://jobicy.com/jobs/example-invalid-card",
+      "companyName": "Example Invalid Fixture",
+      "jobDescription": "<p>This card intentionally has no title.</p>",
+      "pubDate": "2026-09-01T09:00:00Z"
+    }
+  ]
+}

@@ -31,6 +31,7 @@ class NormalizedOpportunity(BaseModel):
     budget_from: Decimal | None = Field(default=None, ge=0)
     budget_to: Decimal | None = Field(default=None, ge=0)
     currency: str | None = Field(default=None, min_length=3, max_length=3)
+    budget_text: str | None = Field(default=None, max_length=255)
     published_at: datetime | None = None
     fetched_at: datetime
     customer_name: str | None = Field(default=None, max_length=255)
