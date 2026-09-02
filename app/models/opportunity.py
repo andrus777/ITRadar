@@ -18,6 +18,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db.base import Base, TimestampMixin
 
 if TYPE_CHECKING:
+    from app.models.ai_analysis import AIAnalysis
     from app.models.source import Source
 
 
@@ -68,4 +69,8 @@ class Opportunity(TimestampMixin, Base):
     duplicates: Mapped[list["Opportunity"]] = relationship(
         foreign_keys=[duplicate_of_id],
         back_populates="duplicate_of",
+    )
+    ai_analyses: Mapped[list["AIAnalysis"]] = relationship(
+        back_populates="opportunity",
+        cascade="all, delete-orphan",
     )

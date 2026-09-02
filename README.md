@@ -181,6 +181,30 @@ IT_RADAR_WEWORKREMOTELY_TIMEOUT_SECONDS=30
 `source_id`, и сохраняет `status`, `fetched_count`, `new_count` и `error`. CLI также
 возвращает эту статистику отдельно для каждого источника.
 
+## AI-классификация
+
+`AIClassifierService` принимает любую реализацию протокола `AIProvider`. Первая
+реализация `OpenAICompatibleProvider` использует Responses API и строгий JSON Schema;
+`MockAIProvider` позволяет полностью тестировать pipeline без сети и API-ключа.
+
+Перед вызовом провайдера сервис вычисляет hash значимых полей заказа. Уже сохранённая
+попытка с теми же заказом, `prompt_version` и hash повторно в AI не отправляется.
+Успешный структурированный ответ и неуспешная попытка сохраняются в `ai_analyses` с
+моделью, версией prompt и временем анализа. Ошибка провайдера или невалидный JSON
+помечает только текущую запись как `failed` и не останавливает пакет.
+
+Настройки OpenAI-compatible endpoint задаются через окружение:
+
+```dotenv
+IT_RADAR_AI_API_KEY=
+IT_RADAR_AI_BASE_URL=https://api.openai.com/v1
+IT_RADAR_AI_MODEL=gpt-5-mini
+IT_RADAR_AI_PROMPT_VERSION=v1
+IT_RADAR_AI_TIMEOUT_SECONDS=60
+```
+
+API-ключ не обязателен для тестов и не должен сохраняться в репозитории.
+
 ## Конфигурация
 
 Настройки приложения читаются из переменных окружения с префиксом `IT_RADAR_` и
@@ -212,3 +236,6 @@ IT_RADAR_WEWORKREMOTELY_TIMEOUT_SECONDS=30
 - Адаптеры Remote OK JSON и We Work Remotely RSS без source-specific логики в pipeline.
 - Registry источников с env-переключателями enabled/disabled и отдельными таймаутами.
 - Команда запуска всех enabled-источников и статистика collection run по каждому из них.
+- Абстракция AI-провайдера, OpenAI-compatible Responses API и offline mock-провайдер.
+- Строгая схема AI-анализа, версионирование prompt и идемпотентность по hash входа.
+- Таблица `ai_analyses`, сохраняющая успешные результаты и изолированные ошибки.
