@@ -80,6 +80,24 @@ pytest
 ruff check .
 ```
 
+Интеграционный тест хранилища требует PostgreSQL и отдельного URL тестовой базы:
+
+```powershell
+$env:IT_RADAR_TEST_DATABASE_URL="postgresql+asyncpg://it_radar:it_radar@localhost:5432/it_radar"
+pytest -m integration
+```
+
+## Миграции базы данных
+
+Контейнер приложения автоматически выполняет `alembic upgrade head` перед запуском
+Uvicorn. Для ручного управления миграциями используйте:
+
+```bash
+alembic upgrade head
+alembic current
+alembic downgrade -1
+```
+
 ## Конфигурация
 
 Настройки приложения читаются из переменных окружения с префиксом `IT_RADAR_` и
@@ -94,3 +112,8 @@ ruff check .
 - FastAPI endpoint `GET /health`.
 - Dockerfile и Docker Compose с PostgreSQL 16.
 - Базовые pytest и Ruff.
+- Async SQLAlchemy 2.x, asyncpg и Alembic.
+- Модели `sources`, `raw_items`, `opportunities`, `collection_runs` с ограничениями
+  уникальности и индексами.
+- Репозитории и storage service для изоляции SQL от сборщиков и интерфейсов.
+- Первая миграция и интеграционный тест идемпотентного сохранения заказа.
