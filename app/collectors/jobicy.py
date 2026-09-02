@@ -18,6 +18,11 @@ class JobicyCollector(CollectorAdapter):
     source_name = "Jobicy"
     base_url = "https://jobicy.com"
     endpoint = "https://jobicy.com/api/v2/remote-jobs"
+    market = "international"
+    priority = "P2"
+    source_type = "api"
+    collection_method = "api"
+    default_opportunity_type = "vacancy"
 
     def __init__(
         self,

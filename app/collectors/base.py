@@ -12,6 +12,7 @@ class CollectorAdapter(ABC):
     priority = "P2"
     collection_method = "api"
     poll_interval_minutes = 60
+    default_opportunity_type = "unknown"
 
     @property
     @abstractmethod

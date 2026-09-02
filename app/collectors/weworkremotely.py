@@ -18,6 +18,11 @@ class WeWorkRemotelyCollector(CollectorAdapter):
     source_name = "We Work Remotely"
     base_url = "https://weworkremotely.com"
     endpoint = "https://weworkremotely.com/categories/remote-programming-jobs.rss"
+    market = "international"
+    priority = "P2"
+    source_type = "rss"
+    collection_method = "rss"
+    default_opportunity_type = "vacancy"
 
     def __init__(
         self,

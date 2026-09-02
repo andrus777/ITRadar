@@ -41,7 +41,12 @@ class PipelineRepository:
         return (await self.session.scalars(query)).first()
 
     async def pending_digest(
-        self, *, profile_id: int, min_score: int, limit: int
+        self,
+        *,
+        profile_id: int,
+        min_score: int,
+        limit: int,
+        include_international: bool = False,
     ) -> list[PendingDigest]:
         latest_analysis_id = (
             select(AIAnalysis.id)
@@ -81,5 +86,7 @@ class PipelineRepository:
             .limit(limit)
             .with_for_update(of=Match, skip_locked=True)
         )
+        if not include_international:
+            query = query.where(Opportunity.market != "international")
         rows = (await self.session.execute(query)).all()
         return [PendingDigest(match=row[0], card=OpportunityCardRow(*row[1:])) for row in rows]

@@ -36,6 +36,7 @@ class Settings(BaseSettings):
     telegram_digest_chat_id: int | None = None
     digest_min_score: int = Field(default=70, ge=0, le=100)
     digest_batch_size: int = Field(default=20, gt=0, le=100)
+    include_international: bool = False
     scheduler_enabled: bool = True
     scheduler_cron: str = "0 9 * * *"
     scheduler_timezone: str = "Europe/Moscow"

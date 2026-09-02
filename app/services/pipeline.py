@@ -32,6 +32,7 @@ class PipelineService:
         prompt_version: str,
         digest_min_score: int,
         digest_batch_size: int = 20,
+        include_international: bool = False,
     ) -> None:
         self.session_factory = session_factory
         self.collectors = collectors
@@ -41,6 +42,7 @@ class PipelineService:
         self.prompt_version = prompt_version
         self.digest_min_score = digest_min_score
         self.digest_batch_size = digest_batch_size
+        self.include_international = include_international
 
     async def run(self) -> PipelineReport:
         report = PipelineReport()
@@ -109,6 +111,7 @@ class PipelineService:
                     profile_id=self.profile_id,
                     min_score=self.digest_min_score,
                     batch_size=self.digest_batch_size,
+                    include_international=self.include_international,
                 ).send_pending()
                 await session.commit()
             except Exception as exc:

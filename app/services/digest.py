@@ -22,18 +22,21 @@ class DigestService:
         profile_id: int,
         min_score: int,
         batch_size: int = 20,
+        include_international: bool = False,
     ) -> None:
         self.repository = PipelineRepository(session)
         self.sender = sender
         self.profile_id = profile_id
         self.min_score = min_score
         self.batch_size = batch_size
+        self.include_international = include_international
 
     async def send_pending(self) -> int:
         pending = await self.repository.pending_digest(
             profile_id=self.profile_id,
             min_score=self.min_score,
             limit=self.batch_size,
+            include_international=self.include_international,
         )
         sent = 0
         for item in pending:

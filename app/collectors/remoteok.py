@@ -18,6 +18,11 @@ class RemoteOKCollector(CollectorAdapter):
     source_name = "Remote OK"
     base_url = "https://remoteok.com"
     endpoint = "https://remoteok.com/api"
+    market = "international"
+    priority = "P2"
+    source_type = "api"
+    collection_method = "api"
+    default_opportunity_type = "vacancy"
 
     def __init__(
         self,

@@ -74,7 +74,13 @@ class CollectorService:
                 continue
 
             try:
-                normalized = self.normalizer.normalize(adapter.normalize(item))
+                normalized = adapter.normalize(item)
+                defaults: dict[str, str] = {}
+                if normalized.market == "unknown":
+                    defaults["market"] = adapter.market
+                if normalized.opportunity_type == "unknown":
+                    defaults["opportunity_type"] = adapter.default_opportunity_type
+                normalized = self.normalizer.normalize(normalized.model_copy(update=defaults))
                 async with self.session.begin_nested():
                     duplicate = await self.deduplication.find_duplicate(
                         source_id=source.id,

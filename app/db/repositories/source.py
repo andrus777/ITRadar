@@ -36,3 +36,9 @@ class SourceRepository:
         self.session.add(source)
         await self.session.flush()
         return source
+
+    async def update_metadata(self, source: Source, **values: object) -> Source:
+        for field, value in values.items():
+            setattr(source, field, value)
+        await self.session.flush()
+        return source

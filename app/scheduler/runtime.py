@@ -50,5 +50,6 @@ def build_runtime(settings: Settings) -> PipelineRuntime:
         prompt_version=settings.ai_prompt_version,
         digest_min_score=settings.digest_min_score,
         digest_batch_size=settings.digest_batch_size,
+        include_international=settings.include_international,
     )
     return PipelineRuntime(pipeline=pipeline, bot=bot)

@@ -20,7 +20,9 @@ class OpportunityStorageService:
     ) -> Source:
         source = await self.sources.get_by_code(code)
         if source is not None:
-            return source
+            return await self.sources.update_metadata(
+                source, name=name, base_url=base_url, **metadata
+            )
         return await self.sources.create(code=code, name=name, base_url=base_url, **metadata)
 
     async def store_raw(
