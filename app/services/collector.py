@@ -29,6 +29,11 @@ class CollectorService:
             code=adapter.source_code,
             name=adapter.source_name,
             base_url=adapter.base_url,
+            source_type=adapter.source_type,
+            market=adapter.market,
+            priority=adapter.priority,
+            collection_method=adapter.collection_method,
+            poll_interval_minutes=adapter.poll_interval_minutes,
         )
         run = await self.runs.start(source_id=source.id)
         context = {"run_id": run.id, "source": adapter.source_code}
@@ -49,8 +54,9 @@ class CollectorService:
 
         errors: list[str] = []
         new_count = 0
-        for item in items:
+        for raw_item in items:
             try:
+                item = adapter.parse(raw_item)
                 async with self.session.begin_nested():
                     await self.storage.store_raw(
                         source_id=source.id,
@@ -61,7 +67,8 @@ class CollectorService:
                         fetched_at=item.fetched_at,
                     )
             except Exception as exc:
-                error = f"{item.external_id}: raw save: {self._error_message(exc)}"
+                item_id = getattr(raw_item, "external_id", "unknown")
+                error = f"{item_id}: parse/raw save: {self._error_message(exc)}"
                 errors.append(error)
                 logger.warning("collection item failed", extra={**context, "error": error})
                 continue

@@ -15,11 +15,13 @@ class OpportunityStorageService:
         self.raw_items = RawItemRepository(session)
         self.opportunities = OpportunityRepository(session)
 
-    async def ensure_source(self, *, code: str, name: str, base_url: str) -> Source:
+    async def ensure_source(
+        self, *, code: str, name: str, base_url: str, **metadata: Any
+    ) -> Source:
         source = await self.sources.get_by_code(code)
         if source is not None:
             return source
-        return await self.sources.create(code=code, name=name, base_url=base_url)
+        return await self.sources.create(code=code, name=name, base_url=base_url, **metadata)
 
     async def store_raw(
         self,
@@ -43,7 +45,5 @@ class OpportunityStorageService:
     async def store_opportunity(self, **values: Any) -> Opportunity:
         return await self.opportunities.add_or_get(**values)
 
-    async def store_opportunity_with_created(
-        self, **values: Any
-    ) -> tuple[Opportunity, bool]:
+    async def store_opportunity_with_created(self, **values: Any) -> tuple[Opportunity, bool]:
         return await self.opportunities.add_or_get_with_created(**values)

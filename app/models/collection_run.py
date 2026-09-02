@@ -10,7 +10,7 @@ if TYPE_CHECKING:
     from app.models.source import Source
 
 
-class CollectionRun(TimestampMixin, Base):
+class SourceRun(TimestampMixin, Base):
     __tablename__ = "collection_runs"
     __table_args__ = (Index("ix_collection_runs_status", "status"),)
 
@@ -26,3 +26,14 @@ class CollectionRun(TimestampMixin, Base):
     error: Mapped[str | None] = mapped_column(Text)
 
     source: Mapped["Source"] = relationship(back_populates="collection_runs")
+
+    @property
+    def items_received(self) -> int:
+        return self.fetched_count
+
+    @property
+    def items_new(self) -> int:
+        return self.new_count
+
+
+CollectionRun = SourceRun

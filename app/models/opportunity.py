@@ -40,6 +40,10 @@ class Opportunity(TimestampMixin, Base):
     external_id: Mapped[str] = mapped_column(String(255))
     title: Mapped[str] = mapped_column(String(500))
     description: Mapped[str | None] = mapped_column(Text)
+    opportunity_type: Mapped[str] = mapped_column(
+        String(32), default="unknown", server_default="unknown"
+    )
+    market: Mapped[str] = mapped_column(String(32), default="unknown", server_default="unknown")
     url: Mapped[str] = mapped_column(String(2048))
     normalized_url: Mapped[str | None] = mapped_column(String(2048))
     normalized_title: Mapped[str | None] = mapped_column(String(500))

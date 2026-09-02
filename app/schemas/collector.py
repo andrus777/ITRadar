@@ -29,6 +29,8 @@ class NormalizedOpportunity(BaseModel):
     external_id: str = Field(min_length=1, max_length=255)
     title: str = Field(min_length=1, max_length=500)
     description: str | None = None
+    opportunity_type: str = Field(default="unknown", max_length=32)
+    market: str = Field(default="unknown", max_length=32)
     url: str = Field(min_length=1, max_length=2048)
     budget_from: Decimal | None = Field(default=None, ge=0)
     budget_to: Decimal | None = Field(default=None, ge=0)
