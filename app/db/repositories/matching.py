@@ -1,4 +1,4 @@
-from sqlalchemy import func
+from sqlalchemy import func, select
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -18,6 +18,9 @@ class UserProfileRepository:
         self.session.add(user_profile)
         await self.session.flush()
         return user_profile
+
+    async def get_by_name(self, name: str) -> UserProfile | None:
+        return await self.session.scalar(select(UserProfile).where(UserProfile.name == name))
 
     @staticmethod
     def _normalized_terms(values: list[str]) -> list[str]:

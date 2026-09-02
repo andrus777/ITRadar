@@ -1,8 +1,54 @@
 # IT Radar
 
-MVP-сервис для сбора, нормализации и последующего персонального отбора публичных
-IT-заказов. На текущем этапе реализован только минимальный каркас приложения и
-проверка его работоспособности.
+IT Radar v0.1.0 — автономный MVP для сбора, нормализации, AI-классификации и
+персонального отбора публичных IT-возможностей с Telegram-интерфейсом и ежедневным
+дайджестом.
+
+## Быстрый старт MVP
+
+```powershell
+Copy-Item .env.example .env
+docker compose up -d --build
+docker compose run --rm app python -m app.seed
+docker compose ps
+Invoke-RestMethod http://localhost:8000/ready
+```
+
+Команда seed выведет ID демонстрационного профиля. Запишите его в `.env` как
+`IT_RADAR_TELEGRAM_DEFAULT_PROFILE_ID`, добавьте AI/Telegram credentials и перезапустите
+сервисы:
+
+```powershell
+docker compose up -d --force-recreate app scheduler
+docker compose run --rm scheduler python -m app.scheduler.cli run
+```
+
+Полный стек после настройки работает автономно по cron. Для остановки без потери
+PostgreSQL данных используйте `docker compose down` без флага `-v`.
+
+## Архитектура
+
+```mermaid
+flowchart LR
+    Sources[Public sources] --> Adapters[Collector adapters]
+    Fixtures[Test fixtures] --> Adapters
+    Adapters --> Pipeline[Collector / normalization / dedupe]
+    Pipeline --> DB[(PostgreSQL)]
+    DB --> AI[AI provider abstraction]
+    AI --> DB
+    DB --> Match[Deterministic matching]
+    Match --> DB
+    Scheduler[APScheduler] --> Adapters
+    Scheduler --> AI
+    Scheduler --> Match
+    DB --> Digest[Idempotent digest]
+    Digest --> Telegram[Telegram bot]
+    DB --> API[Health / readiness API]
+```
+
+Боты, scheduler и адаптеры не содержат SQL: они используют service/repository слой.
+Исходные данные сохраняются отдельно от нормализованных карточек, а source-дубли
+связываются с канонической opportunity без удаления.
 
 ## Требования
 
@@ -46,7 +92,7 @@ curl http://localhost:8000/health
 Ожидаемый ответ:
 
 ```json
-{"status":"ok"}
+{"status":"ok","database":"up"}
 ```
 
 ## Запуск через Docker Compose
@@ -239,6 +285,12 @@ python -m app.bot.profile_cli --name "Python developer" `
   --categories "backend" --min-budget 100000 --remote-only
 ```
 
+Либо создайте готовый демонстрационный профиль идемпотентной командой:
+
+```powershell
+python -m app.seed
+```
+
 Команда выведет ID. Добавьте его и Telegram Bot API token в `.env`:
 
 ```dotenv
@@ -300,6 +352,23 @@ PostgreSQL и API.
 HTTP-запросы сборщиков и AI используют ограниченный exponential backoff.
 Инструкции по backup, миграциям, логам и восстановлению находятся в
 [`docs/OPERATIONS.md`](docs/OPERATIONS.md).
+
+## Известные ограничения v0.1.0
+
+- Один административно настроенный Telegram-профиль; onboarding нескольких
+  пользователей отсутствует.
+- Нет web UI, ролей, платежей, tenant isolation и пользовательской аналитики.
+- Бюджеты разных валют не конвертируются по курсу; сравниваются сохранённые значения.
+- AI-классификация требует OpenAI-compatible API; без ключа сбор продолжится, но новые
+  заказы не получат AI-признаки и match.
+- Источники зависят от публичных API/RSS и могут потребовать обновления parser fixtures
+  при изменении внешнего формата.
+- Гарантия Telegram-доставки соответствует API-ответу; распределённого outbox и
+  повторной сверки доставки пока нет.
+- Scheduler рассчитан на один экземпляр приложения. Distributed leader election не
+  реализован.
+
+Следующие направления собраны в [`BACKLOG.md`](BACKLOG.md).
 
 ## Конфигурация
 
