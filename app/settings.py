@@ -39,6 +39,9 @@ class Settings(BaseSettings):
     scheduler_enabled: bool = True
     scheduler_cron: str = "0 9 * * *"
     scheduler_timezone: str = "Europe/Moscow"
+    http_retry_attempts: int = Field(default=3, ge=1, le=10)
+    http_retry_backoff_seconds: float = Field(default=0.5, ge=0, le=60)
+    log_level: str = "INFO"
 
 
 @lru_cache

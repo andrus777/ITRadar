@@ -293,6 +293,14 @@ python -m app.scheduler.cli schedule
 При `docker compose up --build` scheduler запускается отдельным сервисом вместе с
 PostgreSQL и API.
 
+## Эксплуатация и наблюдаемость
+
+Приложение пишет структурированные JSON-логи. `/health` проверяет доступность БД,
+а `/ready` дополнительно показывает последний collection run каждого источника.
+HTTP-запросы сборщиков и AI используют ограниченный exponential backoff.
+Инструкции по backup, миграциям, логам и восстановлению находятся в
+[`docs/OPERATIONS.md`](docs/OPERATIONS.md).
+
 ## Конфигурация
 
 Настройки приложения читаются из переменных окружения с префиксом `IT_RADAR_` и
@@ -332,3 +340,5 @@ PostgreSQL и API.
 - Telegram-браузер возможностей на aiogram 3 с `/latest`, score-сортировкой `/top`
   и inline-пагинацией.
 - Ежедневный scheduler pipeline и идемпотентный Telegram-дайджест с `notified_at`.
+- JSON-логирование, readiness со статистикой источников и ограниченный HTTP retry.
+- Docker healthchecks и эксплуатационный runbook с backup PostgreSQL.

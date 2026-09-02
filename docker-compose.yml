@@ -20,12 +20,19 @@ services:
     environment:
       IT_RADAR_ENVIRONMENT: ${IT_RADAR_ENVIRONMENT:-development}
       IT_RADAR_DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-it_radar}:${POSTGRES_PASSWORD:-it_radar}@db:5432/${POSTGRES_DB:-it_radar}
+      IT_RADAR_LOG_LEVEL: ${IT_RADAR_LOG_LEVEL:-INFO}
     ports:
       - "${APP_PORT:-8000}:8000"
     depends_on:
       db:
         condition: service_healthy
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health', timeout=3)"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
   scheduler:
     build: .
@@ -44,10 +51,18 @@ services:
       IT_RADAR_SCHEDULER_ENABLED: ${IT_RADAR_SCHEDULER_ENABLED:-true}
       IT_RADAR_SCHEDULER_CRON: ${IT_RADAR_SCHEDULER_CRON:-0 9 * * *}
       IT_RADAR_SCHEDULER_TIMEZONE: ${IT_RADAR_SCHEDULER_TIMEZONE:-Europe/Moscow}
+      IT_RADAR_HTTP_RETRY_ATTEMPTS: ${IT_RADAR_HTTP_RETRY_ATTEMPTS:-3}
+      IT_RADAR_HTTP_RETRY_BACKOFF_SECONDS: ${IT_RADAR_HTTP_RETRY_BACKOFF_SECONDS:-0.5}
+      IT_RADAR_LOG_LEVEL: ${IT_RADAR_LOG_LEVEL:-INFO}
     depends_on:
       db:
         condition: service_healthy
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import os; os.kill(1, 0)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
 
 volumes:
   postgres_data:

@@ -1,6 +1,7 @@
 from app.db.repositories.ai_analysis import AIAnalysisRepository
 from app.db.repositories.collection_run import CollectionRunRepository
 from app.db.repositories.matching import MatchRepository, UserProfileRepository
+from app.db.repositories.operations import OperationsRepository
 from app.db.repositories.opportunity import OpportunityRepository
 from app.db.repositories.opportunity_browser import (
     OpportunityBrowserRepository,
@@ -17,6 +18,7 @@ __all__ = [
     "OpportunityRepository",
     "OpportunityBrowserRepository",
     "OpportunityCardRow",
+    "OperationsRepository",
     "PendingDigest",
     "PipelineRepository",
     "RawItemRepository",

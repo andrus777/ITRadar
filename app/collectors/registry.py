@@ -14,16 +14,26 @@ def configured_collectors(settings: Settings) -> dict[str, CollectorAdapter]:
     factories: dict[str, tuple[bool, CollectorFactory]] = {
         "jobicy": (
             settings.jobicy_enabled,
-            lambda: JobicyCollector(timeout_seconds=settings.jobicy_timeout_seconds),
+            lambda: JobicyCollector(
+                timeout_seconds=settings.jobicy_timeout_seconds,
+                retry_attempts=settings.http_retry_attempts,
+                retry_backoff_seconds=settings.http_retry_backoff_seconds,
+            ),
         ),
         "remoteok": (
             settings.remoteok_enabled,
-            lambda: RemoteOKCollector(timeout_seconds=settings.remoteok_timeout_seconds),
+            lambda: RemoteOKCollector(
+                timeout_seconds=settings.remoteok_timeout_seconds,
+                retry_attempts=settings.http_retry_attempts,
+                retry_backoff_seconds=settings.http_retry_backoff_seconds,
+            ),
         ),
         "weworkremotely": (
             settings.weworkremotely_enabled,
             lambda: WeWorkRemotelyCollector(
-                timeout_seconds=settings.weworkremotely_timeout_seconds
+                timeout_seconds=settings.weworkremotely_timeout_seconds,
+                retry_attempts=settings.http_retry_attempts,
+                retry_backoff_seconds=settings.http_retry_backoff_seconds,
             ),
         ),
     }

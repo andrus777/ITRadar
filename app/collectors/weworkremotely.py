@@ -7,6 +7,7 @@ import httpx
 from bs4 import BeautifulSoup
 
 from app.collectors.base import CollectorAdapter
+from app.http import request_with_retry
 from app.schemas import CollectedItem, NormalizedOpportunity
 
 
@@ -24,23 +25,39 @@ class WeWorkRemotelyCollector(CollectorAdapter):
         count: int = 20,
         timeout_seconds: float = 30,
         client: httpx.AsyncClient | None = None,
+        retry_attempts: int = 3,
+        retry_backoff_seconds: float = 0.5,
     ) -> None:
         if not 1 <= count <= 100:
             raise ValueError("count must be between 1 and 100")
         self.count = count
         self.timeout_seconds = timeout_seconds
         self.client = client
+        self.retry_attempts = retry_attempts
+        self.retry_backoff_seconds = retry_backoff_seconds
 
     async def fetch(self) -> list[CollectedItem]:
         if self.client is not None:
-            response = await self.client.get(self.endpoint)
+            response = await request_with_retry(
+                self.client,
+                "GET",
+                self.endpoint,
+                attempts=self.retry_attempts,
+                backoff_seconds=self.retry_backoff_seconds,
+            )
         else:
             headers = {
                 "Accept": "application/rss+xml, application/xml",
                 "User-Agent": "ITRadar/0.1 (+https://github.com/andrus777/ITRadar)",
             }
             async with httpx.AsyncClient(timeout=self.timeout_seconds, headers=headers) as client:
-                response = await client.get(self.endpoint)
+                response = await request_with_retry(
+                    client,
+                    "GET",
+                    self.endpoint,
+                    attempts=self.retry_attempts,
+                    backoff_seconds=self.retry_backoff_seconds,
+                )
         return self._parse_response(response)[: self.count]
 
     def normalize(self, item: CollectedItem) -> NormalizedOpportunity:

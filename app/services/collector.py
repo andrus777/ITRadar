@@ -1,5 +1,6 @@
 import hashlib
 import json
+import logging
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -9,6 +10,8 @@ from app.models import CollectionRun
 from app.services.deduplication import DeduplicationService
 from app.services.normalization import OpportunityNormalizationService
 from app.services.opportunity_storage import OpportunityStorageService
+
+logger = logging.getLogger(__name__)
 
 
 class CollectorService:
@@ -28,16 +31,20 @@ class CollectorService:
             base_url=adapter.base_url,
         )
         run = await self.runs.start(source_id=source.id)
+        context = {"run_id": run.id, "source": adapter.source_code}
+        logger.info("collection run started", extra=context)
 
         try:
             items = await adapter.fetch()
         except Exception as exc:
+            error = self._error_message(exc)
+            logger.error("collection fetch failed", extra={**context, "error": error})
             return await self.runs.finish(
                 run,
                 status="failed",
                 fetched_count=0,
                 new_count=0,
-                error=self._error_message(exc),
+                error=error,
             )
 
         errors: list[str] = []
@@ -54,7 +61,9 @@ class CollectorService:
                         fetched_at=item.fetched_at,
                     )
             except Exception as exc:
-                errors.append(f"{item.external_id}: raw save: {self._error_message(exc)}")
+                error = f"{item.external_id}: raw save: {self._error_message(exc)}"
+                errors.append(error)
+                logger.warning("collection item failed", extra={**context, "error": error})
                 continue
 
             try:
@@ -71,15 +80,28 @@ class CollectorService:
                     )
                 new_count += int(created)
             except Exception as exc:
-                errors.append(f"{item.external_id}: normalize/save: {self._error_message(exc)}")
+                error = f"{item.external_id}: normalize/save: {self._error_message(exc)}"
+                errors.append(error)
+                logger.warning("collection item failed", extra={**context, "error": error})
 
-        return await self.runs.finish(
+        result = await self.runs.finish(
             run,
             status="partial_failed" if errors else "success",
             fetched_count=len(items),
             new_count=new_count,
             error="; ".join(errors) or None,
         )
+        logger.info(
+            "collection run finished",
+            extra={
+                **context,
+                "status": result.status,
+                "fetched_count": result.fetched_count,
+                "new_count": result.new_count,
+                "error": result.error,
+            },
+        )
+        return result
 
     @staticmethod
     def _payload_hash(payload: dict[str, object]) -> str:

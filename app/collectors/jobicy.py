@@ -7,6 +7,7 @@ import httpx
 from bs4 import BeautifulSoup
 
 from app.collectors.base import CollectorAdapter
+from app.http import request_with_retry
 from app.schemas import CollectedItem, NormalizedOpportunity
 
 
@@ -27,6 +28,8 @@ class JobicyCollector(CollectorAdapter):
         tag: str | None = None,
         timeout_seconds: float = 30,
         client: httpx.AsyncClient | None = None,
+        retry_attempts: int = 3,
+        retry_backoff_seconds: float = 0.5,
     ) -> None:
         if not 1 <= count <= 200:
             raise ValueError("count must be between 1 and 200")
@@ -36,6 +39,8 @@ class JobicyCollector(CollectorAdapter):
         self.tag = tag
         self.timeout_seconds = timeout_seconds
         self.client = client
+        self.retry_attempts = retry_attempts
+        self.retry_backoff_seconds = retry_backoff_seconds
 
     async def fetch(self) -> list[CollectedItem]:
         params = {
@@ -49,11 +54,27 @@ class JobicyCollector(CollectorAdapter):
             if value is not None
         }
         if self.client is not None:
-            return self._parse_response(await self.client.get(self.endpoint, params=params))
+            response = await request_with_retry(
+                self.client,
+                "GET",
+                self.endpoint,
+                params=params,
+                attempts=self.retry_attempts,
+                backoff_seconds=self.retry_backoff_seconds,
+            )
+            return self._parse_response(response)
 
         headers = {"User-Agent": "ITRadar/0.1 (+https://github.com/andrus777/ITRadar)"}
         async with httpx.AsyncClient(timeout=self.timeout_seconds, headers=headers) as client:
-            return self._parse_response(await client.get(self.endpoint, params=params))
+            response = await request_with_retry(
+                client,
+                "GET",
+                self.endpoint,
+                params=params,
+                attempts=self.retry_attempts,
+                backoff_seconds=self.retry_backoff_seconds,
+            )
+            return self._parse_response(response)
 
     def normalize(self, item: CollectedItem) -> NormalizedOpportunity:
         title = self._text(item.payload.get("jobTitle"))
@@ -102,9 +123,7 @@ class JobicyCollector(CollectorAdapter):
             url = job.get("url")
             if external_id is None or not isinstance(url, str) or not url:
                 raise ValueError("Jobicy job requires id and url")
-            items.append(
-                CollectedItem(external_id=str(external_id), url=url, payload=job)
-            )
+            items.append(CollectedItem(external_id=str(external_id), url=url, payload=job))
         return items
 
     @staticmethod

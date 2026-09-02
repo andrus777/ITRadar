@@ -31,6 +31,8 @@ def build_runtime(settings: Settings) -> PipelineRuntime:
             model=settings.ai_model,
             base_url=settings.ai_base_url,
             timeout_seconds=settings.ai_timeout_seconds,
+            retry_attempts=settings.http_retry_attempts,
+            retry_backoff_seconds=settings.http_retry_backoff_seconds,
         )
 
     bot = None
