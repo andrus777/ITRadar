@@ -20,6 +20,14 @@ class Settings(BaseSettings):
     database_url: str = Field(
         default="postgresql+asyncpg://it_radar:it_radar@localhost:5432/it_radar"
     )
+    fl_ru_enabled: bool = True
+    fl_ru_timeout_seconds: float = Field(default=30, gt=0)
+    fl_ru_categories: str = (
+        "программирование,python,интеграция по api,разработка чат-ботов,"
+        "машинное обучение,парсинг данных,1с-программирование,разработка crm и erp,"
+        "devops,fullstack,веб-программирование,mobile,создание mvp,n8n,"
+        "ai — искусственный интеллект,автоматизация бизнеса"
+    )
     jobicy_enabled: bool = True
     jobicy_timeout_seconds: float = Field(default=30, gt=0)
     remoteok_enabled: bool = True

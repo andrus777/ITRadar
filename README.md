@@ -146,7 +146,7 @@ alembic downgrade -1
 
 ## Сборщики
 
-Все источники реализуют единый `CollectorAdapter` с операциями `fetch()` и
+Все источники реализуют единый `CollectorAdapter` с операциями `fetch()`, `parse()` и
 `normalize()`. Эталонный `FixtureCollector` читает локальные JSON/HTML-файлы и
 позволяет тестировать pipeline без доступа к интернету.
 
@@ -170,14 +170,33 @@ fingerprint, затем по очень высокой схожести заго
 opportunity. Для пользовательской выдачи следует выбирать записи с
 `duplicate_of_id IS NULL`.
 
-### Первый публичный источник: Jobicy
+### Основной российский источник: FL.ru
 
-Первым реальным источником выбран [Jobicy Public Jobs API](https://jobicy.com/jobs-rss-feed).
-Это официальный read-only JSON endpoint `https://jobicy.com/api/v2/remote-jobs`, который
+FL.ru подключён через официальный публичный RSS
+`https://www.fl.ru/rss/all.xml`, объявленный на страницах категорий через
+`rel="alternate"`. HTML scraping, авторизация и browser automation не используются.
+RSS даёт стабильный ID/URL проекта, заголовок, описание, категорию, дату публикации
+и бюджет, когда он указан. Пересечения категорий устраняются по ID проекта до
+передачи данных в общий pipeline.
+
+По умолчанию локально отбираются IT-направления: программирование, Python, API,
+чат-боты, ML, парсинг, 1С, CRM/ERP, DevOps, fullstack/web/mobile, MVP, n8n, AI и
+автоматизация бизнеса. Список можно изменить через `IT_RADAR_FL_RU_CATEGORIES`.
+
+Ручной запуск:
+
+```powershell
+python -m app.collectors.cli fl_ru --count 50
+```
+
+### Международный источник: Jobicy
+
+Jobicy используется как вторичный международный источник через
+[Jobicy Public Jobs API](https://jobicy.com/jobs-rss-feed). Это официальный read-only
+JSON endpoint `https://jobicy.com/api/v2/remote-jobs`, который
 не требует регистрации или API-ключа и возвращает стабильный `id`, канонический URL,
 название, HTML-описание, дату публикации и зарплатные поля. Источник охватывает
-удалённые вакансии и контрактные возможности; это пилотный источник для проверки
-pipeline, а не специализированная фриланс-биржа.
+удалённые вакансии и контрактные возможности.
 
 Правила использования Jobicy требуют сохранять атрибуцию и каноническую ссылку,
 не выдавать объявления за собственные и не выполнять автоматический опрос чаще
@@ -193,7 +212,7 @@ python -m app.collectors.cli jobicy --count 20 --tag python
 Доступны также фильтры `--geo` и `--industry`. CLI выводит JSON со статусом run,
 числом полученных и новых карточек и возможной частичной ошибкой.
 
-### Дополнительные публичные источники
+### Дополнительные международные источники
 
 - [Remote OK](https://remoteok.com/api) — официальный публичный JSON feed без
   авторизации. При отображении записи необходимо указывать Remote OK и сохранять
@@ -221,6 +240,8 @@ IT_RADAR_REMOTEOK_ENABLED=true
 IT_RADAR_REMOTEOK_TIMEOUT_SECONDS=30
 IT_RADAR_WEWORKREMOTELY_ENABLED=true
 IT_RADAR_WEWORKREMOTELY_TIMEOUT_SECONDS=30
+IT_RADAR_FL_RU_ENABLED=true
+IT_RADAR_FL_RU_TIMEOUT_SECONDS=30
 ```
 
 Каждый запуск создаёт отдельную строку `collection_runs`, связанную с конкретным

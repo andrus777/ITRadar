@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0">
+  <channel>
+    <title>Заказы на FL.ru (Фри-ланс)</title>
+    <item>
+      <title><![CDATA[Интеграция Озон доставки на сайт (Бюджет: 10 000 ₽)]]></title>
+      <link>https://www.fl.ru/projects/5520499/integratsiya-ozon-dostavki-na-sayt.html</link>
+      <description><![CDATA[Python 3.12 + Django 5.1. Интеграция доставки на сайт.]]></description>
+      <guid>https://www.fl.ru/projects/5520499/integratsiya-ozon-dostavki-na-sayt.html</guid>
+      <category><![CDATA[Сайты / Интеграция по API]]></category>
+      <pubDate>Wed, 02 Sep 2026 17:34:19 GMT</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Интеграция Озон доставки на сайт (Бюджет: 10 000 ₽)]]></title>
+      <link>https://www.fl.ru/projects/5520499/integratsiya-ozon-dostavki-na-sayt.html</link>
+      <description><![CDATA[Python 3.12 + Django 5.1. Интеграция доставки на сайт.]]></description>
+      <guid>https://www.fl.ru/projects/5520499/integratsiya-ozon-dostavki-na-sayt.html</guid>
+      <category><![CDATA[Программирование / Python]]></category>
+      <pubDate>Wed, 02 Sep 2026 17:34:19 GMT</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Разработка Telegram-бота]]></title>
+      <link>https://www.fl.ru/projects/5520496/razrabotka-telegram-bota.html</link>
+      <description><![CDATA[Нужен разработчик для создания Telegram-бота.]]></description>
+      <guid>https://www.fl.ru/projects/5520496/razrabotka-telegram-bota.html</guid>
+      <category><![CDATA[Программирование / Разработка Чат-ботов]]></category>
+    </item>
+    <item>
+      <title><![CDATA[Создать векторный логотип]]></title>
+      <link>https://www.fl.ru/projects/5520508/sozdat-vektornyiy-logotip.html</link>
+      <guid>https://www.fl.ru/projects/5520508/sozdat-vektornyiy-logotip.html</guid>
+      <category><![CDATA[Дизайн / Логотипы]]></category>
+      <pubDate>Wed, 02 Sep 2026 17:38:33 GMT</pubDate>
+    </item>
+  </channel>
+</rss>

@@ -14,7 +14,8 @@ def test_disabled_source_is_removed_by_configuration() -> None:
 
     collectors = configured_collectors(settings)
 
-    assert set(collectors) == {"jobicy", "weworkremotely"}
+    assert set(collectors) == {"fl_ru", "jobicy", "weworkremotely"}
+    assert collectors["fl_ru"].market == "ru"
     assert collectors["jobicy"].timeout_seconds == 11
     assert collectors["weworkremotely"].timeout_seconds == 17
 

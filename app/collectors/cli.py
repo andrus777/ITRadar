@@ -3,6 +3,7 @@ import asyncio
 import json
 from collections.abc import Sequence
 
+from app.collectors.fl_ru import FLRuCollector
 from app.collectors.jobicy import JobicyCollector
 from app.collectors.registry import configured_collectors
 from app.collectors.remoteok import RemoteOKCollector
@@ -15,6 +16,8 @@ from app.settings import get_settings
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Run an IT Radar source collector")
     subparsers = parser.add_subparsers(dest="source", required=True)
+    fl_ru = subparsers.add_parser("fl_ru", help="Collect Russian IT projects from FL.ru RSS")
+    fl_ru.add_argument("--count", type=int, default=50)
     jobicy = subparsers.add_parser("jobicy", help="Collect from the public Jobicy API")
     jobicy.add_argument("--count", type=int, default=20)
     jobicy.add_argument("--geo")
@@ -47,7 +50,7 @@ async def run(args: argparse.Namespace) -> int:
             adapter.geo = args.geo
             adapter.industry = args.industry
         if not isinstance(
-            adapter, (JobicyCollector, RemoteOKCollector, WeWorkRemotelyCollector)
+            adapter, (FLRuCollector, JobicyCollector, RemoteOKCollector, WeWorkRemotelyCollector)
         ):
             raise TypeError(f"unsupported configured collector: {type(adapter).__name__}")
         selected = {args.source: adapter}
