@@ -1,0 +1,2 @@
+"""IT Radar application package."""
+

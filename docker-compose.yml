@@ -1,0 +1,29 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-it_radar}
+      POSTGRES_USER: ${POSTGRES_USER:-it_radar}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-it_radar}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build: .
+    environment:
+      IT_RADAR_ENVIRONMENT: ${IT_RADAR_ENVIRONMENT:-development}
+      IT_RADAR_DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-it_radar}:${POSTGRES_PASSWORD:-it_radar}@db:5432/${POSTGRES_DB:-it_radar}
+    ports:
+      - "${APP_PORT:-8000}:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  postgres_data:

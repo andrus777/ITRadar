@@ -1,0 +1,2 @@
+"""Source collector adapters package."""
+

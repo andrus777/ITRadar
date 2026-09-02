@@ -1,0 +1,11 @@
+.env
+.pytest_cache/
+.ruff_cache/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+dist/
+build/
+IT_Radar_MVP_Codex_Plan.docx
+~$*.docx
