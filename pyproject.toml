@@ -22,11 +22,18 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+desktop = [
+    "PySide6>=6.8,<7.0",
+    "qasync>=0.28,<1.0",
+]
 dev = [
     "pytest>=8.3,<9.0",
     "pytest-asyncio>=0.24,<2.0",
     "ruff>=0.8,<1.0",
 ]
+
+[project.gui-scripts]
+it-radar-desktop = "app.desktop.app:main"
 
 [tool.setuptools.packages.find]
 include = ["app*"]

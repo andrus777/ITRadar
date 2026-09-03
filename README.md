@@ -83,6 +83,21 @@ cp .env.example .env
 uvicorn app.main:app --reload
 ```
 
+### Desktop-приложение
+
+Desktop-интерфейс устанавливается отдельной группой зависимостей и не увеличивает
+серверный Docker-образ:
+
+```powershell
+python -m pip install -e ".[desktop,dev]"
+python -m app.desktop
+```
+
+Также после установки доступна команда `it-radar-desktop`. Каркас использует текущий
+пакет `app/`; GUI обращается к IT Radar через application services, без SQL и запуска
+CLI-процессов из интерфейса. Состояние окон в следующих этапах будет храниться через
+`QSettings`, а рабочие параметры — через сервисный слой.
+
 Приложение доступно по адресу <http://localhost:8000>. Проверка состояния:
 
 ```bash
