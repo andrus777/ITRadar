@@ -38,6 +38,7 @@ class NormalizedOpportunity(BaseModel):
     budget_text: str | None = Field(default=None, max_length=255)
     budget_negotiable: bool = False
     published_at: datetime | None = None
+    deadline_at: datetime | None = None
     fetched_at: datetime
     customer_name: str | None = Field(default=None, max_length=255)
     location: str | None = Field(default=None, max_length=255)
@@ -45,7 +46,7 @@ class NormalizedOpportunity(BaseModel):
     status: str = Field(default="active", min_length=1, max_length=32)
     fingerprint: str = Field(min_length=64, max_length=64)
 
-    @field_validator("published_at", "fetched_at")
+    @field_validator("published_at", "deadline_at", "fetched_at")
     @classmethod
     def dates_must_be_timezone_aware(cls, value: datetime | None) -> datetime | None:
         if value is None:

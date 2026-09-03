@@ -5,6 +5,7 @@ from app.collectors.fl_ru import FLRuCollector
 from app.collectors.jobicy import JobicyCollector
 from app.collectors.remoteok import RemoteOKCollector
 from app.collectors.weworkremotely import WeWorkRemotelyCollector
+from app.collectors.workspace import WorkspaceCollector
 from app.settings import Settings
 
 CollectorFactory = Callable[[], CollectorAdapter]
@@ -44,6 +45,14 @@ def configured_collectors(settings: Settings) -> dict[str, CollectorAdapter]:
             settings.weworkremotely_enabled,
             lambda: WeWorkRemotelyCollector(
                 timeout_seconds=settings.weworkremotely_timeout_seconds,
+                retry_attempts=settings.http_retry_attempts,
+                retry_backoff_seconds=settings.http_retry_backoff_seconds,
+            ),
+        ),
+        "workspace": (
+            settings.workspace_enabled,
+            lambda: WorkspaceCollector(
+                timeout_seconds=settings.workspace_timeout_seconds,
                 retry_attempts=settings.http_retry_attempts,
                 retry_backoff_seconds=settings.http_retry_backoff_seconds,
             ),

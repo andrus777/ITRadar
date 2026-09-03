@@ -8,6 +8,7 @@ from app.collectors.jobicy import JobicyCollector
 from app.collectors.registry import configured_collectors
 from app.collectors.remoteok import RemoteOKCollector
 from app.collectors.weworkremotely import WeWorkRemotelyCollector
+from app.collectors.workspace import WorkspaceCollector
 from app.db import async_session_factory
 from app.services import CollectorService
 from app.settings import get_settings
@@ -30,6 +31,8 @@ def build_parser() -> argparse.ArgumentParser:
         "weworkremotely", help="Collect from We Work Remotely RSS"
     )
     weworkremotely.add_argument("--count", type=int, default=20)
+    workspace = subparsers.add_parser("workspace", help="Collect public Workspace tenders")
+    workspace.add_argument("--count", type=int, default=50)
     subparsers.add_parser("all", help="Run every enabled collector")
     return parser
 
@@ -50,7 +53,14 @@ async def run(args: argparse.Namespace) -> int:
             adapter.geo = args.geo
             adapter.industry = args.industry
         if not isinstance(
-            adapter, (FLRuCollector, JobicyCollector, RemoteOKCollector, WeWorkRemotelyCollector)
+            adapter,
+            (
+                FLRuCollector,
+                JobicyCollector,
+                RemoteOKCollector,
+                WeWorkRemotelyCollector,
+                WorkspaceCollector,
+            ),
         ):
             raise TypeError(f"unsupported configured collector: {type(adapter).__name__}")
         selected = {args.source: adapter}

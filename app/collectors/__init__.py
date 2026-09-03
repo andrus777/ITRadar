@@ -6,6 +6,7 @@ from app.collectors.fl_ru import FLRuCollector
 from app.collectors.jobicy import JobicyCollector
 from app.collectors.remoteok import RemoteOKCollector
 from app.collectors.weworkremotely import WeWorkRemotelyCollector
+from app.collectors.workspace import WorkspaceCollector
 
 __all__ = [
     "BaseSourceAdapter",
@@ -15,4 +16,5 @@ __all__ = [
     "JobicyCollector",
     "RemoteOKCollector",
     "WeWorkRemotelyCollector",
+    "WorkspaceCollector",
 ]

@@ -198,6 +198,22 @@ JSON endpoint `https://jobicy.com/api/v2/remote-jobs`, который
 название, HTML-описание, дату публикации и зарплатные поля. Источник охватывает
 удалённые вакансии и контрактные возможности.
 
+### Российские тендеры Workspace
+
+Workspace подключён через публичные HTML-каталоги IT-тендеров, поскольку официальный
+API или RSS для них не опубликован. Адаптер читает только общедоступные карточки без
+авторизации, сохраняет бюджет, дату публикации, крайний срок, тип `tender`, статус и
+исходный URL. Карточки из пересекающихся разделов объединяются по стабильному ID.
+
+Workspace может возвращать CAPTCHA отдельным IP-адресам. IT Radar не пытается её
+обходить: такой ответ фиксируется как ошибка source run, остальные источники продолжают
+работать. В этом случае источник можно временно отключить через
+`IT_RADAR_WORKSPACE_ENABLED=false`.
+
+```powershell
+python -m app.collectors.cli workspace --count 50
+```
+
 Правила использования Jobicy требуют сохранять атрибуцию и каноническую ссылку,
 не выдавать объявления за собственные и не выполнять автоматический опрос чаще
 одного раза в час. IT Radar сохраняет исходный Jobicy URL; планировщик с частым
@@ -242,6 +258,8 @@ IT_RADAR_WEWORKREMOTELY_ENABLED=true
 IT_RADAR_WEWORKREMOTELY_TIMEOUT_SECONDS=30
 IT_RADAR_FL_RU_ENABLED=true
 IT_RADAR_FL_RU_TIMEOUT_SECONDS=30
+IT_RADAR_WORKSPACE_ENABLED=true
+IT_RADAR_WORKSPACE_TIMEOUT_SECONDS=30
 ```
 
 Каждый запуск создаёт отдельную строку `collection_runs`, связанную с конкретным
