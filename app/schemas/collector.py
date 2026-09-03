@@ -29,6 +29,7 @@ class NormalizedOpportunity(BaseModel):
     external_id: str = Field(min_length=1, max_length=255)
     title: str = Field(min_length=1, max_length=500)
     description: str | None = None
+    source_category: str | None = Field(default=None, max_length=255)
     opportunity_type: str = Field(default="unknown", max_length=32)
     market: str = Field(default="unknown", max_length=32)
     url: str = Field(min_length=1, max_length=2048)

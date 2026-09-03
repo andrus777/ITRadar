@@ -14,11 +14,18 @@ def test_disabled_source_is_removed_by_configuration() -> None:
 
     collectors = configured_collectors(settings)
 
-    assert set(collectors) == {"fl_ru", "jobicy", "weworkremotely", "workspace"}
+    assert set(collectors) == {
+        "fl_ru",
+        "freelance_ru",
+        "jobicy",
+        "weworkremotely",
+        "workspace",
+    }
     assert collectors["fl_ru"].market == "ru"
     assert collectors["jobicy"].timeout_seconds == 11
     assert collectors["weworkremotely"].timeout_seconds == 17
     assert collectors["workspace"].market == "ru"
+    assert collectors["freelance_ru"].default_opportunity_type == "freelance"
 
 
 def test_existing_job_sources_are_secondary_international_vacancies() -> None:

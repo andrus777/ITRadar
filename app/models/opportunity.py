@@ -31,6 +31,7 @@ class Opportunity(TimestampMixin, Base):
         Index("ix_opportunities_deadline_at", "deadline_at"),
         Index("ix_opportunities_fetched_at", "fetched_at"),
         Index("ix_opportunities_status", "status"),
+        Index("ix_opportunities_source_category", "source_category"),
         Index("ix_opportunities_normalized_url", "normalized_url"),
         Index("ix_opportunities_fingerprint", "fingerprint"),
         Index("ix_opportunities_duplicate_of_id", "duplicate_of_id"),
@@ -41,6 +42,7 @@ class Opportunity(TimestampMixin, Base):
     external_id: Mapped[str] = mapped_column(String(255))
     title: Mapped[str] = mapped_column(String(500))
     description: Mapped[str | None] = mapped_column(Text)
+    source_category: Mapped[str | None] = mapped_column(String(255))
     opportunity_type: Mapped[str] = mapped_column(
         String(32), default="unknown", server_default="unknown"
     )

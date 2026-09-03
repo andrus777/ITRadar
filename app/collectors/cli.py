@@ -4,6 +4,7 @@ import json
 from collections.abc import Sequence
 
 from app.collectors.fl_ru import FLRuCollector
+from app.collectors.freelance_ru import FreelanceRuCollector
 from app.collectors.jobicy import JobicyCollector
 from app.collectors.registry import configured_collectors
 from app.collectors.remoteok import RemoteOKCollector
@@ -19,6 +20,10 @@ def build_parser() -> argparse.ArgumentParser:
     subparsers = parser.add_subparsers(dest="source", required=True)
     fl_ru = subparsers.add_parser("fl_ru", help="Collect Russian IT projects from FL.ru RSS")
     fl_ru.add_argument("--count", type=int, default=50)
+    freelance_ru = subparsers.add_parser(
+        "freelance_ru", help="Collect public Web/IT and AI tasks from Freelance.ru"
+    )
+    freelance_ru.add_argument("--count", type=int, default=50)
     jobicy = subparsers.add_parser("jobicy", help="Collect from the public Jobicy API")
     jobicy.add_argument("--count", type=int, default=20)
     jobicy.add_argument("--geo")
@@ -56,6 +61,7 @@ async def run(args: argparse.Namespace) -> int:
             adapter,
             (
                 FLRuCollector,
+                FreelanceRuCollector,
                 JobicyCollector,
                 RemoteOKCollector,
                 WeWorkRemotelyCollector,

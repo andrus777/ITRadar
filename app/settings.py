@@ -36,6 +36,9 @@ class Settings(BaseSettings):
     weworkremotely_timeout_seconds: float = Field(default=30, gt=0)
     workspace_enabled: bool = True
     workspace_timeout_seconds: float = Field(default=30, gt=0)
+    freelance_ru_enabled: bool = True
+    freelance_ru_timeout_seconds: float = Field(default=30, gt=0)
+    freelance_ru_categories: str = "Веб-разработка и IT,Искусственный интеллект"
     ai_api_key: SecretStr | None = None
     ai_base_url: str = "https://api.openai.com/v1"
     ai_model: str = "gpt-5-mini"
