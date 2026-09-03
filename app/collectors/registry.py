@@ -1,5 +1,6 @@
 from collections.abc import Callable
 
+from app.collectors.b2b_center import B2BCenterCollector
 from app.collectors.base import CollectorAdapter
 from app.collectors.fl_ru import FLRuCollector
 from app.collectors.freelance_ru import FreelanceRuCollector
@@ -15,6 +16,14 @@ CollectorFactory = Callable[[], CollectorAdapter]
 def configured_collectors(settings: Settings) -> dict[str, CollectorAdapter]:
     """Build enabled collectors solely from environment-backed settings."""
     factories: dict[str, tuple[bool, CollectorFactory]] = {
+        "b2b_center": (
+            settings.b2b_center_enabled,
+            lambda: B2BCenterCollector(
+                timeout_seconds=settings.b2b_center_timeout_seconds,
+                retry_attempts=settings.http_retry_attempts,
+                retry_backoff_seconds=settings.http_retry_backoff_seconds,
+            ),
+        ),
         "freelance_ru": (
             settings.freelance_ru_enabled,
             lambda: FreelanceRuCollector(

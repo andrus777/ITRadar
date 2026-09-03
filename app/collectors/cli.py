@@ -3,6 +3,7 @@ import asyncio
 import json
 from collections.abc import Sequence
 
+from app.collectors.b2b_center import B2BCenterCollector
 from app.collectors.fl_ru import FLRuCollector
 from app.collectors.freelance_ru import FreelanceRuCollector
 from app.collectors.jobicy import JobicyCollector
@@ -18,6 +19,10 @@ from app.settings import get_settings
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Run an IT Radar source collector")
     subparsers = parser.add_subparsers(dest="source", required=True)
+    b2b_center = subparsers.add_parser(
+        "b2b_center", help="Collect public Russian software tenders from B2B-Center"
+    )
+    b2b_center.add_argument("--count", type=int, default=50)
     fl_ru = subparsers.add_parser("fl_ru", help="Collect Russian IT projects from FL.ru RSS")
     fl_ru.add_argument("--count", type=int, default=50)
     freelance_ru = subparsers.add_parser(
@@ -61,6 +66,7 @@ async def run(args: argparse.Namespace) -> int:
             adapter,
             (
                 FLRuCollector,
+                B2BCenterCollector,
                 FreelanceRuCollector,
                 JobicyCollector,
                 RemoteOKCollector,

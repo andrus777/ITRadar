@@ -34,6 +34,7 @@ class Opportunity(TimestampMixin, Base):
         Index("ix_opportunities_status", "status"),
         Index("ix_opportunities_source_category", "source_category"),
         Index("ix_opportunities_category", "category"),
+        Index("ix_opportunities_procurement_number", "procurement_number"),
         Index("ix_opportunities_normalized_url", "normalized_url"),
         Index("ix_opportunities_content_hash", "content_hash"),
         Index("ix_opportunities_fingerprint", "fingerprint"),
@@ -72,6 +73,9 @@ class Opportunity(TimestampMixin, Base):
     customer_type: Mapped[str] = mapped_column(
         String(32), default="unknown", server_default="unknown"
     )
+    procurement_number: Mapped[str | None] = mapped_column(String(255))
+    procurement_method: Mapped[str | None] = mapped_column(String(255))
+    documentation_url: Mapped[str | None] = mapped_column(String(2048))
     location: Mapped[str | None] = mapped_column(String(255))
     remote: Mapped[bool | None] = mapped_column(Boolean)
     status: Mapped[str] = mapped_column(String(32), default="active", server_default="active")

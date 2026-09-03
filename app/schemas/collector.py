@@ -51,6 +51,9 @@ class NormalizedOpportunity(BaseModel):
     fetched_at: datetime
     customer_name: str | None = Field(default=None, max_length=255)
     customer_type: str = Field(default="unknown", min_length=1, max_length=32)
+    procurement_number: str | None = Field(default=None, max_length=255)
+    procurement_method: str | None = Field(default=None, max_length=255)
+    documentation_url: str | None = Field(default=None, max_length=2048)
     location: str | None = Field(default=None, max_length=255)
     remote: bool | None = None
     status: str = Field(default="active", min_length=1, max_length=32)

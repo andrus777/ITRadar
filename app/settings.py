@@ -20,6 +20,8 @@ class Settings(BaseSettings):
     database_url: str = Field(
         default="postgresql+asyncpg://it_radar:it_radar@localhost:5432/it_radar"
     )
+    b2b_center_enabled: bool = True
+    b2b_center_timeout_seconds: float = Field(default=30, gt=0)
     fl_ru_enabled: bool = True
     fl_ru_timeout_seconds: float = Field(default=30, gt=0)
     fl_ru_categories: str = (

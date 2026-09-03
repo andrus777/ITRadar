@@ -206,6 +206,11 @@ class OpportunityNormalizationService:
                 "technologies": technologies,
                 "customer_name": normalize_text(opportunity.customer_name),
                 "customer_type": customer_type,
+                "documentation_url": (
+                    normalize_url(opportunity.documentation_url)
+                    if opportunity.documentation_url
+                    else None
+                ),
                 "location": normalize_text(opportunity.location),
                 "content_hash": hashlib.sha256(content_hash_input.encode()).hexdigest(),
                 "fingerprint": hashlib.sha256(fingerprint_input.encode()).hexdigest(),

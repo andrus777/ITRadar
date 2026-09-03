@@ -4,7 +4,7 @@ import hashlib
 from collections.abc import Sequence
 
 import sqlalchemy as sa
-from alembic import op
+from alembic import context, op
 
 revision: str = "0012_opportunity_hash"
 down_revision: str | None = "0011_improve_normalization"
@@ -24,6 +24,11 @@ def upgrade() -> None:
         sa.column("content_hash", sa.String()),
     )
     connection = op.get_bind()
+    if context.is_offline_mode():
+        op.execute("UPDATE opportunities SET content_hash = fingerprint")
+        op.alter_column("opportunities", "content_hash", nullable=False)
+        op.create_index("ix_opportunities_content_hash", "opportunities", ["content_hash"])
+        return
     rows = connection.execute(
         sa.select(
             opportunities.c.id,
