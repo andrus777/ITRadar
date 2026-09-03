@@ -83,6 +83,8 @@ async def run(args: argparse.Namespace) -> int:
                     "status": result.status,
                     "fetched_count": result.fetched_count,
                     "new_count": result.new_count,
+                    "duplicate_count": result.duplicate_count,
+                    "rejected_count": result.rejected_count,
                     "error": result.error,
                 }
             )

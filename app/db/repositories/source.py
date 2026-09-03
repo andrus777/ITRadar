@@ -1,3 +1,5 @@
+from datetime import UTC, datetime
+
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -40,5 +42,23 @@ class SourceRepository:
     async def update_metadata(self, source: Source, **values: object) -> Source:
         for field, value in values.items():
             setattr(source, field, value)
+        await self.session.flush()
+        return source
+
+    async def record_run_result(self, source: Source, *, status: str, error: str | None) -> Source:
+        now = datetime.now(UTC)
+        if status == "success":
+            source.health_status = "healthy"
+            source.last_success_at = now
+            source.last_error = None
+        elif status == "partial_failed":
+            source.health_status = "degraded"
+            source.last_success_at = now
+            source.last_error_at = now
+            source.last_error = error
+        else:
+            source.health_status = "unhealthy"
+            source.last_error_at = now
+            source.last_error = error
         await self.session.flush()
         return source

@@ -21,13 +21,9 @@ async def test_real_source_adapters_share_generic_cross_source_deduplication() -
     if not database_url:
         pytest.skip("IT_RADAR_TEST_DATABASE_URL is not configured")
 
-    remoteok_payload = json.loads(
-        (FIXTURES / "remoteok_response.json").read_text(encoding="utf-8")
-    )
+    remoteok_payload = json.loads((FIXTURES / "remoteok_response.json").read_text(encoding="utf-8"))
     wwr_payload = (FIXTURES / "weworkremotely_response.xml").read_bytes()
-    remoteok_transport = httpx.MockTransport(
-        lambda _: httpx.Response(200, json=remoteok_payload)
-    )
+    remoteok_transport = httpx.MockTransport(lambda _: httpx.Response(200, json=remoteok_payload))
     wwr_transport = httpx.MockTransport(lambda _: httpx.Response(200, content=wwr_payload))
     engine = create_async_engine(database_url)
 
@@ -42,9 +38,7 @@ async def test_real_source_adapters_share_generic_cross_source_deduplication() -
             service = CollectorService(session)
 
             remoteok_run = await service.run(RemoteOKCollector(count=2, client=remoteok_client))
-            wwr_run = await service.run(
-                WeWorkRemotelyCollector(count=2, client=wwr_client)
-            )
+            wwr_run = await service.run(WeWorkRemotelyCollector(count=2, client=wwr_client))
             remoteok_job = await session.scalar(
                 select(Opportunity).where(
                     Opportunity.source_id == remoteok_run.source_id,
@@ -61,8 +55,13 @@ async def test_real_source_adapters_share_generic_cross_source_deduplication() -
 
             assert remoteok_run.status == "success"
             assert remoteok_run.fetched_count == 2
+            assert remoteok_run.new_count == 2
+            assert remoteok_run.duplicate_count == 0
             assert wwr_run.status == "success"
             assert wwr_run.fetched_count == 2
+            assert wwr_run.new_count == 1
+            assert wwr_run.duplicate_count == 1
+            assert wwr_run.rejected_count == 0
             assert remoteok_job is not None
             assert wwr_job is not None
             assert wwr_job.duplicate_of_id == remoteok_job.id

@@ -295,8 +295,10 @@ IT_RADAR_WORKSPACE_TIMEOUT_SECONDS=30
 ```
 
 Каждый запуск создаёт отдельную строку `collection_runs`, связанную с конкретным
-`source_id`, и сохраняет `status`, `fetched_count`, `new_count` и `error`. CLI также
-возвращает эту статистику отдельно для каждого источника.
+`source_id`, и сохраняет `status`, `fetched_count`, `new_count`, `duplicate_count`,
+`rejected_count` и `error`. В API `/ready` эти значения также доступны как
+`items_received`, `items_new`, `items_duplicate` и `items_rejected`. CLI возвращает
+статистику отдельно для каждого источника.
 
 ## AI-классификация
 

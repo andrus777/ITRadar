@@ -44,16 +44,19 @@ class CollectorService:
         except Exception as exc:
             error = self._error_message(exc)
             logger.error("collection fetch failed", extra={**context, "error": error})
-            return await self.runs.finish(
+            result = await self.runs.finish(
                 run,
                 status="failed",
                 fetched_count=0,
                 new_count=0,
                 error=error,
             )
+            await self.storage.sources.record_run_result(source, status="failed", error=error)
+            return result
 
         errors: list[str] = []
         new_count = 0
+        duplicate_count = 0
         for raw_item in items:
             try:
                 item = adapter.parse(raw_item)
@@ -91,7 +94,10 @@ class CollectorService:
                         duplicate_of_id=duplicate.id if duplicate else None,
                         **normalized.model_dump(),
                     )
-                new_count += int(created)
+                if created and duplicate is not None:
+                    duplicate_count += 1
+                elif created:
+                    new_count += 1
             except Exception as exc:
                 error = f"{item.external_id}: normalize/save: {self._error_message(exc)}"
                 errors.append(error)
@@ -102,7 +108,14 @@ class CollectorService:
             status="partial_failed" if errors else "success",
             fetched_count=len(items),
             new_count=new_count,
+            duplicate_count=duplicate_count,
+            rejected_count=len(errors),
             error="; ".join(errors) or None,
+        )
+        await self.storage.sources.record_run_result(
+            source,
+            status=result.status,
+            error=result.error,
         )
         logger.info(
             "collection run finished",
@@ -111,6 +124,8 @@ class CollectorService:
                 "status": result.status,
                 "fetched_count": result.fetched_count,
                 "new_count": result.new_count,
+                "duplicate_count": result.duplicate_count,
+                "rejected_count": result.rejected_count,
                 "error": result.error,
             },
         )

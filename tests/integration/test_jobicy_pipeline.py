@@ -39,6 +39,8 @@ async def test_bad_jobicy_card_does_not_stop_pipeline() -> None:
             assert run.status == "partial_failed"
             assert run.fetched_count == 3
             assert run.new_count == 2
+            assert run.duplicate_count == 0
+            assert run.rejected_count == 1
             assert "900003" in (run.error or "")
 
             await session.close()

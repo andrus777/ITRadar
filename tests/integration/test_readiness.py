@@ -43,6 +43,13 @@ async def test_ready_reports_database_and_latest_source_run() -> None:
             )
             assert source_run["run_id"] == run.id
             assert source_run["status"] == "failed"
+            assert source_run["health"] == "unhealthy"
+            assert source_run["items_received"] == 0
+            assert source_run["items_new"] == 0
+            assert source_run["items_duplicate"] == 0
+            assert source_run["items_rejected"] == 0
+            assert source_run["last_success_at"] is None
+            assert source_run["last_error_at"] is not None
             assert source_run["error"] == "source unavailable"
 
     finally:

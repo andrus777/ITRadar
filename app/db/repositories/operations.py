@@ -19,6 +19,8 @@ class OperationsRepository:
             CollectionRun.status,
             CollectionRun.fetched_count,
             CollectionRun.new_count,
+            CollectionRun.duplicate_count,
+            CollectionRun.rejected_count,
             CollectionRun.started_at,
             CollectionRun.finished_at,
             CollectionRun.error,
@@ -30,7 +32,13 @@ class OperationsRepository:
             .label("position"),
         ).subquery()
         query = (
-            select(ranked, Source.code)
+            select(
+                ranked,
+                Source.code,
+                Source.health_status,
+                Source.last_success_at,
+                Source.last_error_at,
+            )
             .join(Source, Source.id == ranked.c.source_id)
             .where(ranked.c.position == 1)
             .order_by(Source.code)
@@ -43,6 +51,15 @@ class OperationsRepository:
                 status=row.status,
                 fetched_count=row.fetched_count,
                 new_count=row.new_count,
+                duplicate_count=row.duplicate_count,
+                rejected_count=row.rejected_count,
+                items_received=row.fetched_count,
+                items_new=row.new_count,
+                items_duplicate=row.duplicate_count,
+                items_rejected=row.rejected_count,
+                health=row.health_status,
+                last_success_at=row.last_success_at,
+                last_error_at=row.last_error_at,
                 started_at=row.started_at,
                 finished_at=row.finished_at,
                 error=row.error,

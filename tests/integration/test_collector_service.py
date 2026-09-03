@@ -7,7 +7,7 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 
 from app.collectors import FixtureCollector
-from app.models import CollectionRun, Opportunity, RawItem
+from app.models import CollectionRun, Opportunity, RawItem, Source
 from app.services.collector import CollectorService
 
 pytestmark = pytest.mark.integration
@@ -34,9 +34,7 @@ async def test_collector_is_idempotent_and_records_partial_errors() -> None:
             second = await service.run(collector)
 
             raw_count = await session.scalar(select(func.count()).select_from(RawItem))
-            opportunity_count = await session.scalar(
-                select(func.count()).select_from(Opportunity)
-            )
+            opportunity_count = await session.scalar(select(func.count()).select_from(Opportunity))
             runs = (
                 await session.scalars(
                     select(CollectionRun)
@@ -44,17 +42,27 @@ async def test_collector_is_idempotent_and_records_partial_errors() -> None:
                     .order_by(CollectionRun.id)
                 )
             ).all()
+            source = await session.get(Source, first.source_id)
 
             assert raw_count == 3
             assert opportunity_count == 2
             assert first.status == "partial_failed"
             assert first.fetched_count == 3
             assert first.new_count == 2
+            assert first.duplicate_count == 0
+            assert first.rejected_count == 1
             assert "json-broken" in (first.error or "")
             assert second.status == "partial_failed"
             assert second.new_count == 0
+            assert second.duplicate_count == 0
+            assert second.rejected_count == 1
             assert len(runs) == 2
             assert all(run.finished_at is not None for run in runs)
+            assert source is not None
+            assert source.health_status == "degraded"
+            assert source.last_success_at is not None
+            assert source.last_error_at is not None
+            assert "json-broken" in (source.last_error or "")
 
             await session.close()
             await transaction.rollback()

@@ -15,11 +15,13 @@ def test_existing_adapters_use_unified_parse_contract() -> None:
 
 
 def test_source_run_keeps_collection_run_compatibility() -> None:
-    run = SourceRun(fetched_count=3, new_count=2)
+    run = SourceRun(fetched_count=5, new_count=2, duplicate_count=1, rejected_count=2)
 
     assert CollectionRun is SourceRun
-    assert run.items_received == 3
+    assert run.items_received == 5
     assert run.items_new == 2
+    assert run.items_duplicate == 1
+    assert run.items_rejected == 2
 
 
 def test_opportunity_schema_defaults_new_classification_fields() -> None:
