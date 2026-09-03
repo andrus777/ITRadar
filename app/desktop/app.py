@@ -9,6 +9,7 @@ from app.desktop.main_window import MainWindow
 from app.desktop.services import (
     LocalCollectionRunner,
     LocalDashboardProvider,
+    LocalDeveloperProfileProvider,
     LocalOpportunityProvider,
     LocalSourceProvider,
 )
@@ -40,12 +41,14 @@ def main() -> int:
         LocalOpportunityProvider(),
         LocalSourceProvider(),
         LocalCollectionRunner(),
+        LocalDeveloperProfileProvider(),
     )
     window.show()
     event_loop.create_task(window.dashboard_view.refresh())
     event_loop.create_task(window.opportunities_view.load(initial=True))
     event_loop.create_task(window.sources_view.load())
     event_loop.create_task(window.collection_view.load())
+    event_loop.create_task(window.profile_view.load())
     application.aboutToQuit.connect(event_loop.stop)
     with event_loop:
         event_loop.run_forever()

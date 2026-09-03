@@ -19,11 +19,18 @@ from PySide6.QtWidgets import (
 from app.desktop.dialogs import OpportunityDialog
 from app.desktop.services import (
     DashboardProvider,
+    DeveloperProfileProvider,
     LocalCollectionRunner,
     OpportunityProvider,
     SourceProvider,
 )
-from app.desktop.views import CollectionView, DashboardView, OpportunitiesView, SourcesView
+from app.desktop.views import (
+    CollectionView,
+    DashboardView,
+    DeveloperProfileView,
+    OpportunitiesView,
+    SourcesView,
+)
 
 
 @dataclass(frozen=True, slots=True)
@@ -99,6 +106,7 @@ class MainWindow(QMainWindow):
         opportunity_provider: OpportunityProvider | None = None,
         source_provider: SourceProvider | None = None,
         collection_runner: LocalCollectionRunner | None = None,
+        profile_provider: DeveloperProfileProvider | None = None,
     ) -> None:
         super().__init__()
         self.setObjectName("mainWindow")
@@ -119,7 +127,9 @@ class MainWindow(QMainWindow):
         self.workspace.addWidget(self.sources_view)
         self.collection_view = CollectionView(source_provider, collection_runner)
         self.workspace.addWidget(self.collection_view)
-        for item in NAVIGATION_ITEMS[4:]:
+        self.profile_view = DeveloperProfileView(profile_provider)
+        self.workspace.addWidget(self.profile_view)
+        for item in NAVIGATION_ITEMS[5:]:
             self.workspace.addWidget(PlaceholderView(item))
 
         shell = QWidget()

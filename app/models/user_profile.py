@@ -24,6 +24,7 @@ class UserProfile(TimestampMixin, Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(255))
     technologies: Mapped[list[str]] = mapped_column(JSONB, default=list)
+    technology_weights: Mapped[dict[str, int]] = mapped_column(JSONB, default=dict)
     categories: Mapped[list[str]] = mapped_column(JSONB, default=list)
     min_budget: Mapped[Decimal | None] = mapped_column(Numeric(14, 2))
     max_budget: Mapped[Decimal | None] = mapped_column(Numeric(14, 2))

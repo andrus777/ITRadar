@@ -9,7 +9,7 @@ from app.schemas.dashboard import (
     DashboardSnapshot,
     DashboardSystemStatus,
 )
-from app.schemas.matching import MatchReason, MatchResult, UserProfileCreate
+from app.schemas.matching import DeveloperProfile, MatchReason, MatchResult, UserProfileCreate
 from app.schemas.operations import CollectionRunStatus, HealthStatus, ReadinessStatus
 from app.schemas.opportunity_details import OpportunityDetails, OpportunityUserStatus
 from app.schemas.opportunity_management import (
@@ -33,6 +33,7 @@ __all__ = [
     "DashboardSystemStatus",
     "NormalizedOpportunity",
     "MatchReason",
+    "DeveloperProfile",
     "MatchResult",
     "UserProfileCreate",
     "CollectionRunStatus",

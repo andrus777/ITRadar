@@ -8,8 +8,9 @@ from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 
 from app.db.repositories import UserProfileRepository
 from app.models import AIAnalysis, Match
-from app.schemas import UserProfileCreate
+from app.schemas import DeveloperProfile, UserProfileCreate
 from app.services import MatchingEngine, OpportunityStorageService
+from app.services.developer_profile import DeveloperProfileService
 
 pytestmark = pytest.mark.integration
 
@@ -43,6 +44,7 @@ async def test_match_score_and_reasons_are_upserted() -> None:
                 UserProfileCreate(
                     name="Python developer",
                     technologies=[" Python "],
+                    technology_weights={" Python ": 10},
                     categories=["BACKEND"],
                     min_budget=Decimal("100000"),
                     remote_only=True,
@@ -69,11 +71,26 @@ async def test_match_score_and_reasons_are_upserted() -> None:
             count = await session.scalar(select(func.count()).select_from(Match))
 
             assert repeated.score == 65
+            assert profile.technology_weights == {"python": 10}
             assert repeated.id == first.id
             assert count == 1
             assert repeated.reasons[0]["factor"] == "technologies"
             assert "не найдены" in repeated.reasons[0]["message"]
             assert repeated.matched_at > first_matched_at
+
+            updated = await DeveloperProfileService(session).save(
+                DeveloperProfile(
+                    profile_id=profile.id,
+                    name="Updated developer",
+                    technology_weights={"FastAPI": 9},
+                    categories=["Automation"],
+                    min_budget=Decimal("120000"),
+                    max_budget=Decimal("400000"),
+                    exclude_keywords=["Crypto"],
+                )
+            )
+            assert updated.technology_weights == {"fastapi": 9}
+            assert profile.technologies == ["fastapi"]
 
             await session.close()
             await transaction.rollback()

@@ -3,7 +3,7 @@ from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models import Match, UserProfile
-from app.schemas import MatchResult, UserProfileCreate
+from app.schemas import DeveloperProfile, MatchResult, UserProfileCreate
 
 
 class UserProfileRepository:
@@ -14,6 +14,7 @@ class UserProfileRepository:
         values = profile.model_dump()
         for field in ("technologies", "categories", "exclude_keywords"):
             values[field] = self._normalized_terms(values[field])
+        values["technology_weights"] = self._normalized_weights(values["technology_weights"])
         user_profile = UserProfile(**values)
         self.session.add(user_profile)
         await self.session.flush()
@@ -22,9 +23,32 @@ class UserProfileRepository:
     async def get_by_name(self, name: str) -> UserProfile | None:
         return await self.session.scalar(select(UserProfile).where(UserProfile.name == name))
 
+    async def get(self, profile_id: int) -> UserProfile | None:
+        return await self.session.get(UserProfile, profile_id)
+
+    async def first(self) -> UserProfile | None:
+        return await self.session.scalar(select(UserProfile).order_by(UserProfile.id).limit(1))
+
+    async def update(self, profile: UserProfile, data: DeveloperProfile) -> UserProfile:
+        profile.name = data.name.strip()
+        profile.technology_weights = self._normalized_weights(data.technology_weights)
+        profile.technologies = sorted(profile.technology_weights)
+        profile.categories = self._normalized_terms(data.categories)
+        profile.min_budget = data.min_budget
+        profile.max_budget = data.max_budget
+        profile.exclude_keywords = self._normalized_terms(data.exclude_keywords)
+        await self.session.flush()
+        return profile
+
     @staticmethod
     def _normalized_terms(values: list[str]) -> list[str]:
         return sorted({value.strip().casefold() for value in values if value.strip()})
+
+    @staticmethod
+    def _normalized_weights(values: dict[str, int]) -> dict[str, int]:
+        return {
+            key.strip().casefold(): weight for key, weight in sorted(values.items()) if key.strip()
+        }
 
 
 class MatchRepository:
