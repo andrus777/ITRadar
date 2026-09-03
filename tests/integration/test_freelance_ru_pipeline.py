@@ -50,6 +50,10 @@ async def test_freelance_ru_fixture_pipeline_persists_required_fields() -> None:
             assert opportunity.source_category == "Веб-разработка и IT"
             assert opportunity.budget_from is not None
             assert opportunity.currency == "RUB"
+            assert opportunity.budget_type == "fixed"
+            assert opportunity.category == "data"
+            assert opportunity.technologies == ["php"]
+            assert opportunity.customer_type == "unknown"
             assert opportunity.published_at is not None
             assert opportunity.opportunity_type == "freelance"
             assert opportunity.url.startswith("https://freelance.ru/task/view/")

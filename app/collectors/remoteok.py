@@ -85,6 +85,7 @@ class RemoteOKCollector(CollectorAdapter):
             external_id=item.external_id,
             title=title,
             description=description,
+            source_category=self._source_category(item.payload.get("tags")),
             url=item.url,
             budget_from=salary_min,
             budget_to=salary_max,
@@ -93,6 +94,7 @@ class RemoteOKCollector(CollectorAdapter):
             published_at=self._datetime(item.payload.get("date")),
             fetched_at=item.fetched_at,
             customer_name=self._text(item.payload.get("company")),
+            customer_type="business",
             location=self._text(item.payload.get("location")),
             remote=True,
             fingerprint=hashlib.sha256(fingerprint_source.encode()).hexdigest(),
@@ -121,6 +123,13 @@ class RemoteOKCollector(CollectorAdapter):
             return None
         text = str(value).strip()
         return text or None
+
+    @staticmethod
+    def _source_category(value: Any) -> str | None:
+        if not isinstance(value, list):
+            return None
+        tags = [str(tag).strip() for tag in value if str(tag).strip()]
+        return ", ".join(tags) or None
 
     @staticmethod
     def _positive_decimal(value: Any) -> Decimal | None:

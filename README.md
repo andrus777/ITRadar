@@ -229,6 +229,15 @@ python -m app.collectors.cli freelance_ru --count 50
 Источник управляется переменными `IT_RADAR_FREELANCE_RU_ENABLED`,
 `IT_RADAR_FREELANCE_RU_TIMEOUT_SECONDS` и `IT_RADAR_FREELANCE_RU_CATEGORIES`.
 
+### Нормализация возможностей
+
+Общий pipeline приводит данные всех адаптеров к единому контракту: тип возможности
+(`project`, `freelance`, `tender`, `contract`, `vacancy`), рынок (`ru` или
+`international`), собственная IT-категория, отдельный массив технологий, тип бюджета
+(`fixed`, `hourly`, `monthly`, `negotiable`, `unknown`) и тип заказчика (`business`,
+`government`, `individual`, `unknown`). Исходная категория площадки сохраняется отдельно
+в `source_category`, а отсутствующие данные не подменяются вымышленными значениями.
+
 Правила использования Jobicy требуют сохранять атрибуцию и каноническую ссылку,
 не выдавать объявления за собственные и не выполнять автоматический опрос чаще
 одного раза в час. IT Radar сохраняет исходный Jobicy URL; планировщик с частым

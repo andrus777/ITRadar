@@ -113,6 +113,7 @@ class FLRuCollector(CollectorAdapter):
             external_id=item.external_id,
             title=title,
             description=description,
+            source_category=self._text(item.payload.get("category")),
             url=item.url,
             budget_text=budget_text,
             published_at=self._datetime(item.payload.get("pubDate")),

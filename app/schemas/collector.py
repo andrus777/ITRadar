@@ -4,6 +4,11 @@ from typing import Any
 
 from pydantic import BaseModel, Field, field_validator
 
+OPPORTUNITY_TYPES = {"project", "freelance", "tender", "contract", "vacancy", "unknown"}
+MARKETS = {"ru", "international", "unknown"}
+BUDGET_TYPES = {"fixed", "hourly", "monthly", "negotiable", "unknown"}
+CUSTOMER_TYPES = {"business", "government", "individual", "unknown"}
+
 
 class CollectedItem(BaseModel):
     """Raw item returned by a source adapter."""
@@ -30,6 +35,8 @@ class NormalizedOpportunity(BaseModel):
     title: str = Field(min_length=1, max_length=500)
     description: str | None = None
     source_category: str | None = Field(default=None, max_length=255)
+    category: str = Field(default="other", min_length=1, max_length=100)
+    technologies: list[str] = Field(default_factory=list, max_length=50)
     opportunity_type: str = Field(default="unknown", max_length=32)
     market: str = Field(default="unknown", max_length=32)
     url: str = Field(min_length=1, max_length=2048)
@@ -38,10 +45,12 @@ class NormalizedOpportunity(BaseModel):
     currency: str | None = Field(default=None, min_length=3, max_length=3)
     budget_text: str | None = Field(default=None, max_length=255)
     budget_negotiable: bool = False
+    budget_type: str = Field(default="unknown", min_length=1, max_length=32)
     published_at: datetime | None = None
     deadline_at: datetime | None = None
     fetched_at: datetime
     customer_name: str | None = Field(default=None, max_length=255)
+    customer_type: str = Field(default="unknown", min_length=1, max_length=32)
     location: str | None = Field(default=None, max_length=255)
     remote: bool | None = None
     status: str = Field(default="active", min_length=1, max_length=32)
@@ -60,3 +69,35 @@ class NormalizedOpportunity(BaseModel):
     @classmethod
     def normalize_currency(cls, value: str | None) -> str | None:
         return value.upper() if value else None
+
+    @field_validator("opportunity_type")
+    @classmethod
+    def validate_opportunity_type(cls, value: str) -> str:
+        normalized = value.casefold().strip()
+        if normalized not in OPPORTUNITY_TYPES:
+            raise ValueError(f"unsupported opportunity_type: {value!r}")
+        return normalized
+
+    @field_validator("market")
+    @classmethod
+    def validate_market(cls, value: str) -> str:
+        normalized = value.casefold().strip()
+        if normalized not in MARKETS:
+            raise ValueError(f"unsupported market: {value!r}")
+        return normalized
+
+    @field_validator("budget_type")
+    @classmethod
+    def validate_budget_type(cls, value: str) -> str:
+        normalized = value.casefold().strip()
+        if normalized not in BUDGET_TYPES:
+            raise ValueError(f"unsupported budget_type: {value!r}")
+        return normalized
+
+    @field_validator("customer_type")
+    @classmethod
+    def validate_customer_type(cls, value: str) -> str:
+        normalized = value.casefold().strip()
+        if normalized not in CUSTOMER_TYPES:
+            raise ValueError(f"unsupported customer_type: {value!r}")
+        return normalized

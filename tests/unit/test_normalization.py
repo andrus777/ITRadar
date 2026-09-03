@@ -16,6 +16,7 @@ def test_parse_budget_range_in_thousands_of_rubles() -> None:
     assert budget.maximum == Decimal(300_000)
     assert budget.currency == "RUB"
     assert budget.negotiable is False
+    assert budget.budget_type == "fixed"
 
 
 def test_parse_budget_from_value_without_currency() -> None:
@@ -32,7 +33,15 @@ def test_parse_negotiable_budget() -> None:
     assert budget.minimum is None
     assert budget.maximum is None
     assert budget.negotiable is True
+    assert budget.budget_type == "negotiable"
     assert budget.text == "negotiable"
+
+
+def test_parse_freelance_ru_negotiable_budget() -> None:
+    budget = parse_budget("Обсуждается индивидуально")
+
+    assert budget.budget_type == "negotiable"
+    assert budget.negotiable is True
 
 
 def test_normalize_url_removes_tracking_and_cosmetic_differences() -> None:
@@ -49,6 +58,7 @@ def test_normalizer_cleans_html_whitespace_and_rebuilds_fingerprint() -> None:
         description="<p>Build&nbsp;an <strong>API</strong></p>",
         url="https://www.example.com/jobs/one/?utm_campaign=test",
         budget_text="100–300 тыс. ₽",
+        source_category="Веб-разработка и IT",
         fetched_at=datetime.now(UTC),
         fingerprint="0" * 64,
     )
@@ -61,4 +71,49 @@ def test_normalizer_cleans_html_whitespace_and_rebuilds_fingerprint() -> None:
     assert normalized.normalized_url == "https://example.com/jobs/one"
     assert normalized.budget_from == Decimal(100_000)
     assert normalized.budget_to == Decimal(300_000)
+    assert normalized.budget_type == "fixed"
+    assert normalized.category == "api"
+    assert normalized.technologies == ["python"]
+    assert normalized.customer_type == "unknown"
     assert normalized.fingerprint != "0" * 64
+
+
+def test_normalizer_distinguishes_category_technologies_and_customer_type() -> None:
+    opportunity = NormalizedOpportunity(
+        external_id="two",
+        title="Telegram-бот на Python и FastAPI",
+        description="Заказчик — компания, интеграция с PostgreSQL",
+        url="https://example.com/two",
+        budget_text="2 000 ₽ / час",
+        fetched_at=datetime.now(UTC),
+        opportunity_type="freelance",
+        market="ru",
+        fingerprint="0" * 64,
+    )
+
+    normalized = OpportunityNormalizationService().normalize(opportunity)
+
+    assert normalized.opportunity_type == "freelance"
+    assert normalized.market == "ru"
+    assert normalized.category == "telegram"
+    assert normalized.technologies == ["fastapi", "postgresql", "python", "telegram"]
+    assert normalized.budget_type == "hourly"
+    assert normalized.customer_type == "business"
+
+
+def test_normalizer_detects_monthly_and_government_customer() -> None:
+    opportunity = NormalizedOpportunity(
+        external_id="three",
+        title="Администрирование инфраструктуры",
+        description="Проект для государственного учреждения",
+        url="https://example.com/three",
+        budget_text="150 000 ₽ в месяц",
+        fetched_at=datetime.now(UTC),
+        fingerprint="0" * 64,
+    )
+
+    normalized = OpportunityNormalizationService().normalize(opportunity)
+
+    assert normalized.category == "infrastructure"
+    assert normalized.budget_type == "monthly"
+    assert normalized.customer_type == "government"

@@ -13,6 +13,7 @@ from sqlalchemy import (
     UniqueConstraint,
     func,
 )
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base, TimestampMixin
@@ -32,6 +33,7 @@ class Opportunity(TimestampMixin, Base):
         Index("ix_opportunities_fetched_at", "fetched_at"),
         Index("ix_opportunities_status", "status"),
         Index("ix_opportunities_source_category", "source_category"),
+        Index("ix_opportunities_category", "category"),
         Index("ix_opportunities_normalized_url", "normalized_url"),
         Index("ix_opportunities_fingerprint", "fingerprint"),
         Index("ix_opportunities_duplicate_of_id", "duplicate_of_id"),
@@ -43,6 +45,8 @@ class Opportunity(TimestampMixin, Base):
     title: Mapped[str] = mapped_column(String(500))
     description: Mapped[str | None] = mapped_column(Text)
     source_category: Mapped[str | None] = mapped_column(String(255))
+    category: Mapped[str] = mapped_column(String(100), default="other", server_default="other")
+    technologies: Mapped[list[str]] = mapped_column(JSONB, default=list, server_default="[]")
     opportunity_type: Mapped[str] = mapped_column(
         String(32), default="unknown", server_default="unknown"
     )
@@ -55,12 +59,18 @@ class Opportunity(TimestampMixin, Base):
     currency: Mapped[str | None] = mapped_column(String(3))
     budget_text: Mapped[str | None] = mapped_column(String(255))
     budget_negotiable: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false")
+    budget_type: Mapped[str] = mapped_column(
+        String(32), default="unknown", server_default="unknown"
+    )
     published_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     deadline_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     fetched_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )
     customer_name: Mapped[str | None] = mapped_column(String(255))
+    customer_type: Mapped[str] = mapped_column(
+        String(32), default="unknown", server_default="unknown"
+    )
     location: Mapped[str | None] = mapped_column(String(255))
     remote: Mapped[bool | None] = mapped_column(Boolean)
     status: Mapped[str] = mapped_column(String(32), default="active", server_default="active")
