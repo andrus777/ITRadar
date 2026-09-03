@@ -7,6 +7,7 @@ from qasync import QEventLoop
 
 from app.desktop.main_window import MainWindow
 from app.desktop.services import (
+    LocalCollectionRunner,
     LocalDashboardProvider,
     LocalOpportunityProvider,
     LocalSourceProvider,
@@ -38,11 +39,13 @@ def main() -> int:
         LocalDashboardProvider(),
         LocalOpportunityProvider(),
         LocalSourceProvider(),
+        LocalCollectionRunner(),
     )
     window.show()
     event_loop.create_task(window.dashboard_view.refresh())
     event_loop.create_task(window.opportunities_view.load(initial=True))
     event_loop.create_task(window.sources_view.load())
+    event_loop.create_task(window.collection_view.load())
     application.aboutToQuit.connect(event_loop.stop)
     with event_loop:
         event_loop.run_forever()
