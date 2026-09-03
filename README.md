@@ -532,6 +532,8 @@ HTTP-запросы сборщиков и AI используют огранич
 - Desktop-раздел Opportunities с поиском, составными фильтрами, сортировкой и пагинацией.
 - Desktop-карточка Opportunity с AI-анализом, matching reasons, workflow-статусом и
   безопасным переходом к первоисточнику.
+- Desktop-управление источниками: health, включение/отключение, ручной запуск и
+  статистика последнего collection run.
 - Ежедневный scheduler pipeline и идемпотентный Telegram-дайджест с `notified_at`.
 - JSON-логирование, readiness со статистикой источников и ограниченный HTTP retry.
 - Docker healthchecks и эксплуатационный runbook с backup PostgreSQL.

@@ -4,7 +4,7 @@ from aiogram import Bot
 
 from app.ai import OpenAICompatibleProvider
 from app.bot.digest import TelegramDigestSender
-from app.collectors.registry import configured_collectors
+from app.collectors.registry import available_collectors
 from app.db.session import async_session_factory
 from app.services import PipelineService
 from app.settings import Settings
@@ -41,9 +41,10 @@ def build_runtime(settings: Settings) -> PipelineRuntime:
         bot = Bot(token=settings.telegram_bot_token.get_secret_value())
         sender = TelegramDigestSender(bot, chat_id=settings.telegram_digest_chat_id)
 
+    registrations = available_collectors(settings)
     pipeline = PipelineService(
         async_session_factory,
-        collectors=configured_collectors(settings),
+        collectors={code: item.adapter for code, item in registrations.items()},
         ai_provider=provider,
         digest_sender=sender,
         profile_id=settings.telegram_default_profile_id,
@@ -51,5 +52,8 @@ def build_runtime(settings: Settings) -> PipelineRuntime:
         digest_min_score=settings.digest_min_score,
         digest_batch_size=settings.digest_batch_size,
         include_international=settings.include_international,
+        collector_enabled_defaults={
+            code: item.enabled_by_default for code, item in registrations.items()
+        },
     )
     return PipelineRuntime(pipeline=pipeline, bot=bot)

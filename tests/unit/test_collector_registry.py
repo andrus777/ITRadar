@@ -1,5 +1,5 @@
 from app.collectors import JobicyCollector, RemoteOKCollector, WeWorkRemotelyCollector
-from app.collectors.registry import configured_collectors
+from app.collectors.registry import available_collectors, configured_collectors
 from app.settings import Settings
 
 
@@ -42,3 +42,10 @@ def test_existing_job_sources_are_secondary_international_vacancies() -> None:
 
 def test_international_digest_is_disabled_by_default() -> None:
     assert Settings().include_international is False
+
+
+def test_available_collectors_retains_disabled_sources_for_desktop_management() -> None:
+    collectors = available_collectors(Settings(remoteok_enabled=False))
+
+    assert collectors["remoteok"].enabled_by_default is False
+    assert isinstance(collectors["remoteok"].adapter, RemoteOKCollector)

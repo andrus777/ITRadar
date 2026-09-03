@@ -13,6 +13,7 @@ from app.db.repositories.opportunity_management import OpportunityManagementRepo
 from app.db.repositories.pipeline import PendingDigest, PipelineRepository
 from app.db.repositories.raw_item import RawItemRepository
 from app.db.repositories.source import SourceRepository
+from app.db.repositories.source_management import SourceManagementRepository
 
 __all__ = [
     "AIAnalysisRepository",
@@ -29,5 +30,6 @@ __all__ = [
     "PipelineRepository",
     "RawItemRepository",
     "SourceRepository",
+    "SourceManagementRepository",
     "UserProfileRepository",
 ]

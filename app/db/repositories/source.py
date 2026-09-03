@@ -24,6 +24,7 @@ class SourceRepository:
         priority: str = "P2",
         collection_method: str = "api",
         poll_interval_minutes: int = 60,
+        enabled: bool = True,
     ) -> Source:
         source = Source(
             code=code,
@@ -34,8 +35,17 @@ class SourceRepository:
             priority=priority,
             collection_method=collection_method,
             poll_interval_minutes=poll_interval_minutes,
+            enabled=enabled,
         )
         self.session.add(source)
+        await self.session.flush()
+        return source
+
+    async def list_all(self) -> list[Source]:
+        return list((await self.session.scalars(select(Source).order_by(Source.name))).all())
+
+    async def set_enabled(self, source: Source, enabled: bool) -> Source:
+        source.enabled = enabled
         await self.session.flush()
         return source
 

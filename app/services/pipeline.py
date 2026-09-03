@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from app.ai import AIProvider
 from app.collectors import CollectorAdapter
-from app.db.repositories import PipelineRepository
+from app.db.repositories import PipelineRepository, SourceRepository
 from app.services.ai_classifier import AIClassifierService
 from app.services.collector import CollectorService
 from app.services.digest import DigestSender, DigestService
@@ -33,6 +33,7 @@ class PipelineService:
         digest_min_score: int,
         digest_batch_size: int = 20,
         include_international: bool = False,
+        collector_enabled_defaults: dict[str, bool] | None = None,
     ) -> None:
         self.session_factory = session_factory
         self.collectors = collectors
@@ -43,6 +44,7 @@ class PipelineService:
         self.digest_min_score = digest_min_score
         self.digest_batch_size = digest_batch_size
         self.include_international = include_international
+        self.collector_enabled_defaults = collector_enabled_defaults or {}
 
     async def run(self) -> PipelineReport:
         report = PipelineReport()
@@ -54,6 +56,13 @@ class PipelineService:
     async def _collect(self, report: PipelineReport) -> None:
         for name, adapter in self.collectors.items():
             async with self.session_factory() as session:
+                source = await SourceRepository(session).get_by_code(name)
+                enabled_by_default = self.collector_enabled_defaults.get(name, True)
+                if (source is not None and not source.enabled) or (
+                    source is None and not enabled_by_default
+                ):
+                    report.collection_statuses[name] = "disabled"
+                    continue
                 try:
                     run = await CollectorService(session).run(adapter)
                     await session.commit()

@@ -1,4 +1,5 @@
 from collections.abc import Callable
+from dataclasses import dataclass
 
 from app.collectors.b2b_center import B2BCenterCollector
 from app.collectors.base import CollectorAdapter
@@ -14,8 +15,14 @@ from app.settings import Settings
 CollectorFactory = Callable[[], CollectorAdapter]
 
 
-def configured_collectors(settings: Settings) -> dict[str, CollectorAdapter]:
-    """Build enabled collectors solely from environment-backed settings."""
+@dataclass(frozen=True, slots=True)
+class CollectorRegistration:
+    enabled_by_default: bool
+    adapter: CollectorAdapter
+
+
+def available_collectors(settings: Settings) -> dict[str, CollectorRegistration]:
+    """Build every known collector and retain its initial configuration state."""
     factories: dict[str, tuple[bool, CollectorFactory]] = {
         "b2b_center": (
             settings.b2b_center_enabled,
@@ -82,15 +89,28 @@ def configured_collectors(settings: Settings) -> dict[str, CollectorAdapter]:
             ),
         ),
     }
-    collectors = {name: factory() for name, (enabled, factory) in factories.items() if enabled}
+    collectors = {
+        name: CollectorRegistration(enabled_by_default=enabled, adapter=factory())
+        for name, (enabled, factory) in factories.items()
+    }
     for channel in parse_telegram_whitelist(settings.telegram_source_whitelist):
-        if not channel.enabled:
-            continue
         collector = TelegramChannelCollector(
             channel=channel,
             timeout_seconds=settings.telegram_source_timeout_seconds,
             retry_attempts=settings.http_retry_attempts,
             retry_backoff_seconds=settings.http_retry_backoff_seconds,
         )
-        collectors[collector.source_code] = collector
+        collectors[collector.source_code] = CollectorRegistration(
+            enabled_by_default=channel.enabled,
+            adapter=collector,
+        )
     return collectors
+
+
+def configured_collectors(settings: Settings) -> dict[str, CollectorAdapter]:
+    """Build collectors enabled by bootstrap environment configuration."""
+    return {
+        code: registration.adapter
+        for code, registration in available_collectors(settings).items()
+        if registration.enabled_by_default
+    }

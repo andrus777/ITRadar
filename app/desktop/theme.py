@@ -81,7 +81,8 @@ QLabel#sectionTitle {
 
 QFrame#kpiCard,
 QFrame#systemStatus,
-QFrame#filterPanel {
+QFrame#filterPanel,
+QFrame#sourceDetailsPanel {
     background-color: #20242d;
     border: 1px solid #303744;
     border-radius: 8px;
@@ -164,6 +165,7 @@ QSpinBox:focus,
 QDoubleSpinBox:focus { border-color: #4d8bc9; }
 
 QTableWidget#opportunitiesTable,
+QTableWidget#sourcesTable,
 QTableView#opportunityManagementTable {
     background-color: #1b1f27;
     alternate-background-color: #1f242d;
@@ -174,6 +176,7 @@ QTableView#opportunityManagementTable {
 }
 
 QTableWidget#opportunitiesTable::item { padding: 7px; }
+QTableWidget#sourcesTable::item { padding: 7px; }
 QTableView#opportunityManagementTable::item { padding: 6px; }
 
 QLabel#paginationLabel { color: #cbd3df; padding: 0 8px; }

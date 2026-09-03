@@ -18,6 +18,7 @@ from app.schemas.opportunity_management import (
     OpportunityListPage,
     OpportunitySortField,
 )
+from app.schemas.source_management import SourceRunResult, SourceSummary
 
 __all__ = [
     "AIAnalysisRequest",
@@ -43,4 +44,6 @@ __all__ = [
     "OpportunitySortField",
     "OpportunityDetails",
     "OpportunityUserStatus",
+    "SourceRunResult",
+    "SourceSummary",
 ]
