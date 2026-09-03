@@ -15,8 +15,6 @@ class CollectedItem(BaseModel):
 
     external_id: str = Field(min_length=1, max_length=255)
     url: str = Field(min_length=1, max_length=2048)
-    normalized_url: str | None = Field(default=None, max_length=2048)
-    normalized_title: str | None = Field(default=None, max_length=500)
     payload: dict[str, Any]
     fetched_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
@@ -40,6 +38,8 @@ class NormalizedOpportunity(BaseModel):
     opportunity_type: str = Field(default="unknown", max_length=32)
     market: str = Field(default="unknown", max_length=32)
     url: str = Field(min_length=1, max_length=2048)
+    normalized_url: str | None = Field(default=None, max_length=2048)
+    normalized_title: str | None = Field(default=None, max_length=500)
     budget_from: Decimal | None = Field(default=None, ge=0)
     budget_to: Decimal | None = Field(default=None, ge=0)
     currency: str | None = Field(default=None, min_length=3, max_length=3)
@@ -54,6 +54,7 @@ class NormalizedOpportunity(BaseModel):
     location: str | None = Field(default=None, max_length=255)
     remote: bool | None = None
     status: str = Field(default="active", min_length=1, max_length=32)
+    content_hash: str = Field(default="0" * 64, min_length=64, max_length=64)
     fingerprint: str = Field(min_length=64, max_length=64)
 
     @field_validator("published_at", "deadline_at", "fetched_at")

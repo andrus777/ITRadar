@@ -35,6 +35,7 @@ class Opportunity(TimestampMixin, Base):
         Index("ix_opportunities_source_category", "source_category"),
         Index("ix_opportunities_category", "category"),
         Index("ix_opportunities_normalized_url", "normalized_url"),
+        Index("ix_opportunities_content_hash", "content_hash"),
         Index("ix_opportunities_fingerprint", "fingerprint"),
         Index("ix_opportunities_duplicate_of_id", "duplicate_of_id"),
     )
@@ -74,6 +75,7 @@ class Opportunity(TimestampMixin, Base):
     location: Mapped[str | None] = mapped_column(String(255))
     remote: Mapped[bool | None] = mapped_column(Boolean)
     status: Mapped[str] = mapped_column(String(32), default="active", server_default="active")
+    content_hash: Mapped[str] = mapped_column(String(64), default=lambda: "0" * 64)
     fingerprint: Mapped[str] = mapped_column(String(64))
     duplicate_of_id: Mapped[int | None] = mapped_column(
         ForeignKey("opportunities.id", ondelete="SET NULL")

@@ -183,6 +183,10 @@ class OpportunityNormalizationService:
             " ".join(part for part in (opportunity.customer_name, classification_text) if part),
         )
         fingerprint_input = "\n".join((normalized_title, (description or "").casefold()))
+        normalized_budget = budget.text or ""
+        content_hash_input = "\n".join(
+            (normalized_title, (description or "").casefold(), normalized_budget.casefold())
+        )
 
         return opportunity.model_copy(
             update={
@@ -203,6 +207,7 @@ class OpportunityNormalizationService:
                 "customer_name": normalize_text(opportunity.customer_name),
                 "customer_type": customer_type,
                 "location": normalize_text(opportunity.location),
+                "content_hash": hashlib.sha256(content_hash_input.encode()).hexdigest(),
                 "fingerprint": hashlib.sha256(fingerprint_input.encode()).hexdigest(),
             }
         )

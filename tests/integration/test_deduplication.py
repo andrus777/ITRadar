@@ -98,6 +98,14 @@ async def test_cross_source_deduplication_is_conservative() -> None:
             url="https://another.test/orders/7",
             budget_text="договорная",
         ),
+        StaticCollector(
+            source_code="dedupe-e",
+            external_id="e-1",
+            title="Python API integration.",
+            description="Build a CRM integration with Python and FastAPI!",
+            url="https://near-duplicate.test/project/42",
+            budget_text="100–300 тыс. ₽",
+        ),
     ]
 
     try:
@@ -111,18 +119,26 @@ async def test_cross_source_deduplication_is_conservative() -> None:
             opportunities = (
                 await session.scalars(
                     select(Opportunity)
-                    .where(Opportunity.external_id.in_(["a-1", "b-1", "c-1", "d-1"]))
+                    .where(
+                        Opportunity.external_id.in_(["a-1", "b-1", "c-1", "d-1", "e-1"])
+                    )
                     .order_by(Opportunity.external_id)
                 )
             ).all()
-            canonical, same_url, changed_budget, same_title_only = opportunities
+            canonical, same_url, changed_budget, same_title_only, near_duplicate = opportunities
 
             assert canonical.duplicate_of_id is None
             assert same_url.duplicate_of_id == canonical.id
+            assert same_url.content_hash == canonical.content_hash
             assert changed_budget.duplicate_of_id == canonical.id
+            assert changed_budget.content_hash != canonical.content_hash
+            assert changed_budget.fingerprint == canonical.fingerprint
             assert changed_budget.budget_from == 450_000
             assert same_title_only.duplicate_of_id is None
             assert same_title_only.budget_negotiable is True
+            assert near_duplicate.content_hash != canonical.content_hash
+            assert near_duplicate.fingerprint != canonical.fingerprint
+            assert near_duplicate.duplicate_of_id == canonical.id
 
             await session.close()
             await transaction.rollback()

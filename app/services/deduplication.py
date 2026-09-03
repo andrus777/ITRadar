@@ -1,3 +1,4 @@
+import re
 from difflib import SequenceMatcher
 
 from sqlalchemy import select
@@ -33,6 +34,15 @@ class DeduplicationService:
             if by_url is not None:
                 return by_url
 
+        by_content = await self.session.scalar(
+            select(Opportunity)
+            .where(*base_filters, Opportunity.content_hash == opportunity.content_hash)
+            .order_by(Opportunity.id)
+            .limit(1)
+        )
+        if by_content is not None:
+            return by_content
+
         by_fingerprint = await self.session.scalar(
             select(Opportunity)
             .where(*base_filters, Opportunity.fingerprint == opportunity.fingerprint)
@@ -49,18 +59,26 @@ class DeduplicationService:
                 select(Opportunity)
                 .where(*base_filters, Opportunity.description.is_not(None))
                 .order_by(Opportunity.id.desc())
-                .limit(200)
+                .limit(1000)
             )
         ).all()
         for candidate in candidates:
             if not candidate.normalized_title or not candidate.description:
                 continue
             title_score = SequenceMatcher(
-                None, opportunity.normalized_title, candidate.normalized_title
+                None,
+                self._comparison_text(opportunity.normalized_title),
+                self._comparison_text(candidate.normalized_title),
             ).ratio()
             description_score = SequenceMatcher(
-                None, opportunity.description.casefold(), candidate.description.casefold()
+                None,
+                self._comparison_text(opportunity.description),
+                self._comparison_text(candidate.description),
             ).ratio()
             if title_score >= 0.96 and description_score >= 0.90:
                 return candidate
         return None
+
+    @staticmethod
+    def _comparison_text(value: str) -> str:
+        return re.sub(r"[^\w]+", " ", value.casefold(), flags=re.UNICODE).strip()

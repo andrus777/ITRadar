@@ -75,7 +75,28 @@ def test_normalizer_cleans_html_whitespace_and_rebuilds_fingerprint() -> None:
     assert normalized.category == "api"
     assert normalized.technologies == ["python"]
     assert normalized.customer_type == "unknown"
+    assert normalized.content_hash != "0" * 64
     assert normalized.fingerprint != "0" * 64
+
+
+def test_content_hash_includes_normalized_budget() -> None:
+    service = OpportunityNormalizationService()
+    common = {
+        "external_id": "hash",
+        "title": "Python API",
+        "description": "CRM integration",
+        "url": "https://example.com/hash",
+        "fetched_at": datetime.now(UTC),
+        "fingerprint": "0" * 64,
+    }
+
+    first = service.normalize(NormalizedOpportunity(**common, budget_text="100–200 тыс. ₽"))
+    same = service.normalize(NormalizedOpportunity(**common, budget_text="100000-200000 RUB"))
+    changed = service.normalize(NormalizedOpportunity(**common, budget_text="от 300 000 ₽"))
+
+    assert first.content_hash == same.content_hash
+    assert first.content_hash != changed.content_hash
+    assert first.fingerprint == changed.fingerprint
 
 
 def test_normalizer_distinguishes_category_technologies_and_customer_type() -> None:
