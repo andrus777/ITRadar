@@ -16,6 +16,9 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from app.desktop.services import DashboardProvider
+from app.desktop.views import DashboardView
+
 
 @dataclass(frozen=True, slots=True)
 class NavigationItem:
@@ -84,7 +87,7 @@ class PlaceholderView(QWidget):
 class MainWindow(QMainWindow):
     """Main desktop shell shared by all IT Radar feature views."""
 
-    def __init__(self) -> None:
+    def __init__(self, dashboard_provider: DashboardProvider | None = None) -> None:
         super().__init__()
         self.setObjectName("mainWindow")
         self.setWindowTitle("IT Radar Desktop")
@@ -94,7 +97,9 @@ class MainWindow(QMainWindow):
         self.sidebar = self._build_navigation()
         self.workspace = QStackedWidget()
         self.workspace.setObjectName("workspace")
-        for item in NAVIGATION_ITEMS:
+        self.dashboard_view = DashboardView(dashboard_provider)
+        self.workspace.addWidget(self.dashboard_view)
+        for item in NAVIGATION_ITEMS[1:]:
             self.workspace.addWidget(PlaceholderView(item))
 
         shell = QWidget()

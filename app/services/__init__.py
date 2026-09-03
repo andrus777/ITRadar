@@ -2,6 +2,7 @@
 
 from app.services.ai_classifier import AIClassificationOutcome, AIClassifierService
 from app.services.collector import CollectorService
+from app.services.dashboard import DashboardService
 from app.services.deduplication import DeduplicationService
 from app.services.digest import DigestSender, DigestService
 from app.services.matching import MatchingEngine
@@ -15,6 +16,7 @@ __all__ = [
     "AIClassificationOutcome",
     "AIClassifierService",
     "CollectorService",
+    "DashboardService",
     "DeduplicationService",
     "DigestSender",
     "DigestService",

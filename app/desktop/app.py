@@ -1,9 +1,12 @@
+import asyncio
 import sys
 from collections.abc import Sequence
 
 from PySide6.QtWidgets import QApplication
+from qasync import QEventLoop
 
 from app.desktop.main_window import MainWindow
+from app.desktop.services import LocalDashboardProvider
 from app.desktop.theme import DARK_THEME
 
 
@@ -25,6 +28,12 @@ def create_application(argv: Sequence[str] | None = None) -> QApplication:
 def main() -> int:
     """Run the IT Radar desktop application."""
     application = create_application()
-    window = MainWindow()
+    event_loop = QEventLoop(application)
+    asyncio.set_event_loop(event_loop)
+    window = MainWindow(LocalDashboardProvider())
     window.show()
-    return application.exec()
+    event_loop.create_task(window.dashboard_view.refresh())
+    application.aboutToQuit.connect(event_loop.stop)
+    with event_loop:
+        event_loop.run_forever()
+    return 0

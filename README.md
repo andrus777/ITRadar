@@ -528,6 +528,7 @@ HTTP-запросы сборщиков и AI используют огранич
 - Детерминированный matching 0–100 с сохраняемыми понятными reasons.
 - Telegram-браузер возможностей на aiogram 3 с `/latest`, score-сортировкой `/top`
   и inline-пагинацией.
+- PySide6 Desktop-каркас и Dashboard с KPI, состояниями подсистем и TOP Opportunities.
 - Ежедневный scheduler pipeline и идемпотентный Telegram-дайджест с `notified_at`.
 - JSON-логирование, readiness со статистикой источников и ограниченный HTTP retry.
 - Docker healthchecks и эксплуатационный runbook с backup PostgreSQL.
