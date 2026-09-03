@@ -10,6 +10,8 @@ from app.schemas import AIAnalysisRequest, AIAnalysisResponse
 
 def response_payload() -> dict[str, object]:
     return {
+        "is_opportunity": True,
+        "opportunity_probability": 0.95,
         "summary": "Разработка API",
         "category": "backend",
         "technologies": ["Python", "FastAPI"],

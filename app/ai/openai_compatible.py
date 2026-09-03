@@ -6,6 +6,8 @@ from app.http import request_with_retry
 from app.schemas import AIAnalysisRequest, AIAnalysisResponse
 
 INSTRUCTIONS = """You classify IT work opportunities for a developer.
+First decide whether the text is a real commercial opportunity rather than advertising,
+editorial content, a service offer, or unrelated discussion, and assign a probability.
 Extract only evidence supported by the supplied opportunity. Keep the summary concise.
 Return technologies and risk flags as short strings. Do not invent a budget.
 Follow the supplied JSON Schema exactly."""

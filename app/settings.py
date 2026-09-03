@@ -49,6 +49,11 @@ class Settings(BaseSettings):
     telegram_bot_token: SecretStr | None = None
     telegram_default_profile_id: int | None = Field(default=None, gt=0)
     telegram_digest_chat_id: int | None = None
+    telegram_source_timeout_seconds: float = Field(default=30, gt=0)
+    telegram_source_whitelist: str = (
+        '[{"username":"job_for_bots","enabled":true,"category":"freelance"},'
+        '{"username":"FreeVacanciesIT","enabled":true,"category":"projects"}]'
+    )
     digest_min_score: int = Field(default=70, ge=0, le=100)
     digest_batch_size: int = Field(default=20, gt=0, le=100)
     include_international: bool = False

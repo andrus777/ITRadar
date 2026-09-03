@@ -9,6 +9,7 @@ from app.collectors.freelance_ru import FreelanceRuCollector
 from app.collectors.jobicy import JobicyCollector
 from app.collectors.registry import configured_collectors
 from app.collectors.remoteok import RemoteOKCollector
+from app.collectors.telegram import TelegramChannelCollector
 from app.collectors.weworkremotely import WeWorkRemotelyCollector
 from app.collectors.workspace import WorkspaceCollector
 from app.db import async_session_factory
@@ -43,6 +44,10 @@ def build_parser() -> argparse.ArgumentParser:
     weworkremotely.add_argument("--count", type=int, default=20)
     workspace = subparsers.add_parser("workspace", help="Collect public Workspace tenders")
     workspace.add_argument("--count", type=int, default=50)
+    telegram = subparsers.add_parser(
+        "telegram", help="Collect all enabled public Telegram whitelist channels"
+    )
+    telegram.add_argument("--count", type=int, default=20)
     subparsers.add_parser("all", help="Run every enabled collector")
     return parser
 
@@ -51,6 +56,17 @@ async def run(args: argparse.Namespace) -> int:
     collectors = configured_collectors(get_settings())
     if args.source == "all":
         selected = collectors
+    elif args.source == "telegram":
+        selected = {
+            name: adapter
+            for name, adapter in collectors.items()
+            if isinstance(adapter, TelegramChannelCollector)
+        }
+        for adapter in selected.values():
+            adapter.count = args.count
+        if not selected:
+            print(json.dumps({"source": "telegram", "status": "disabled"}))
+            return 2
     else:
         if args.source not in collectors:
             print(json.dumps({"source": args.source, "status": "disabled"}))
@@ -70,6 +86,7 @@ async def run(args: argparse.Namespace) -> int:
                 FreelanceRuCollector,
                 JobicyCollector,
                 RemoteOKCollector,
+                TelegramChannelCollector,
                 WeWorkRemotelyCollector,
                 WorkspaceCollector,
             ),

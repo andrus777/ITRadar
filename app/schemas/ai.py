@@ -21,6 +21,8 @@ class AIAnalysisResponse(BaseModel):
 
     model_config = ConfigDict(extra="forbid", strict=True)
 
+    is_opportunity: bool
+    opportunity_probability: float = Field(ge=0, le=1)
     summary: str = Field(min_length=1, max_length=2000)
     category: str = Field(min_length=1, max_length=100)
     technologies: list[str] = Field(max_length=50)

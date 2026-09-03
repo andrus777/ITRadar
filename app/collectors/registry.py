@@ -6,6 +6,7 @@ from app.collectors.fl_ru import FLRuCollector
 from app.collectors.freelance_ru import FreelanceRuCollector
 from app.collectors.jobicy import JobicyCollector
 from app.collectors.remoteok import RemoteOKCollector
+from app.collectors.telegram import TelegramChannelCollector, parse_telegram_whitelist
 from app.collectors.weworkremotely import WeWorkRemotelyCollector
 from app.collectors.workspace import WorkspaceCollector
 from app.settings import Settings
@@ -81,4 +82,15 @@ def configured_collectors(settings: Settings) -> dict[str, CollectorAdapter]:
             ),
         ),
     }
-    return {name: factory() for name, (enabled, factory) in factories.items() if enabled}
+    collectors = {name: factory() for name, (enabled, factory) in factories.items() if enabled}
+    for channel in parse_telegram_whitelist(settings.telegram_source_whitelist):
+        if not channel.enabled:
+            continue
+        collector = TelegramChannelCollector(
+            channel=channel,
+            timeout_seconds=settings.telegram_source_timeout_seconds,
+            retry_attempts=settings.http_retry_attempts,
+            retry_backoff_seconds=settings.http_retry_backoff_seconds,
+        )
+        collectors[collector.source_code] = collector
+    return collectors

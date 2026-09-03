@@ -91,6 +91,8 @@ class PipelineService:
                     analysis = await repository.latest_successful_analysis(opportunity.id)
                     if analysis is None:
                         continue
+                    if analysis.is_opportunity is False:
+                        continue
                     await matching.calculate_and_store(profile, opportunity, analysis)
                     report.matched_count += 1
                 except Exception as exc:

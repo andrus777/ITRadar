@@ -41,8 +41,10 @@ class RecordingSender:
         self.urls.append(str(keyboard.inline_keyboard[-1][0].url))
 
 
-def ai_response() -> dict[str, object]:
+def ai_response(*, is_opportunity: bool = True) -> dict[str, object]:
     return {
+        "is_opportunity": is_opportunity,
+        "opportunity_probability": 0.95 if is_opportunity else 0.05,
         "summary": "Подходящий IT-заказ",
         "category": "backend",
         "technologies": ["Python"],
@@ -70,7 +72,7 @@ async def test_fixture_e2e_collects_dedupes_matches_and_formats_digest() -> None
     failing = FailingCollector(FIXTURES / "opportunities.json")
     failing.source_code = f"scheduled-failing-{suffix}"
     sender = RecordingSender()
-    provider = MockAIProvider([ai_response(), ai_response()])
+    provider = MockAIProvider([ai_response(), ai_response(is_opportunity=False)])
 
     try:
         async with session_factory() as session:
@@ -122,15 +124,15 @@ async def test_fixture_e2e_collects_dedupes_matches_and_formats_digest() -> None
         assert first.collection_statuses["fixture"] == "partial_failed"
         assert first.collection_statuses["duplicate"] == "partial_failed"
         assert first.classified_count == 2
-        assert first.matched_count == 2
-        assert first.notified_count == 2
+        assert first.matched_count == 1
+        assert first.notified_count == 1
         assert second.notified_count == 0
         assert provider.call_count == 2
-        assert len(sender.cards) == 2
+        assert len(sender.cards) == 1
         assert all("<b>Score:</b> 100/100" in text for text in sender.texts)
         assert all("Подходящий IT-заказ" in text for text in sender.texts)
         assert sender.urls == [card.source_url for card in sender.cards]
-        assert match_count == 2
+        assert match_count == 1
         assert unnotified_count == 0
         assert duplicate_count == 2
     finally:

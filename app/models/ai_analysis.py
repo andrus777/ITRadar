@@ -2,8 +2,10 @@ from datetime import datetime
 from typing import TYPE_CHECKING
 
 from sqlalchemy import (
+    Boolean,
     CheckConstraint,
     DateTime,
+    Float,
     ForeignKey,
     Index,
     Integer,
@@ -38,6 +40,10 @@ class AIAnalysis(TimestampMixin, Base):
             "commercial_score IS NULL OR commercial_score BETWEEN 0 AND 100",
             name="ck_ai_analyses_commercial_score",
         ),
+        CheckConstraint(
+            "opportunity_probability IS NULL OR opportunity_probability BETWEEN 0 AND 1",
+            name="ck_ai_analyses_opportunity_probability",
+        ),
         Index("ix_ai_analyses_status", "status"),
         Index("ix_ai_analyses_analyzed_at", "analyzed_at"),
     )
@@ -45,6 +51,8 @@ class AIAnalysis(TimestampMixin, Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     opportunity_id: Mapped[int] = mapped_column(ForeignKey("opportunities.id", ondelete="CASCADE"))
     status: Mapped[str] = mapped_column(String(32))
+    is_opportunity: Mapped[bool | None] = mapped_column(Boolean)
+    opportunity_probability: Mapped[float | None] = mapped_column(Float)
     summary: Mapped[str | None] = mapped_column(Text)
     category: Mapped[str | None] = mapped_column(String(100))
     technologies: Mapped[list[str] | None] = mapped_column(JSONB)

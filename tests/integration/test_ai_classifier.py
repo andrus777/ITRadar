@@ -12,6 +12,8 @@ pytestmark = pytest.mark.integration
 
 def valid_response(*, score: int = 80) -> dict[str, object]:
     return {
+        "is_opportunity": True,
+        "opportunity_probability": 0.9,
         "summary": "Нужен backend-сервис",
         "category": "backend",
         "technologies": ["Python", "PostgreSQL"],
@@ -61,6 +63,8 @@ async def test_classifier_is_idempotent_and_persists_metadata() -> None:
             assert first.analysis.prompt_version == "prompt-v1"
             assert first.analysis.analyzed_at is not None
             assert first.analysis.commercial_score == 80
+            assert first.analysis.is_opportunity is True
+            assert first.analysis.opportunity_probability == pytest.approx(0.9)
 
             await session.close()
             await transaction.rollback()

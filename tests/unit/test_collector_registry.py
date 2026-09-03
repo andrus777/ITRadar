@@ -19,6 +19,8 @@ def test_disabled_source_is_removed_by_configuration() -> None:
         "fl_ru",
         "freelance_ru",
         "jobicy",
+        "telegram_freevacanciesit",
+        "telegram_job_for_bots",
         "weworkremotely",
         "workspace",
     }
@@ -28,6 +30,7 @@ def test_disabled_source_is_removed_by_configuration() -> None:
     assert collectors["workspace"].market == "ru"
     assert collectors["freelance_ru"].default_opportunity_type == "freelance"
     assert collectors["b2b_center"].source_type == "procurement"
+    assert collectors["telegram_job_for_bots"].source_type == "telegram"
 
 
 def test_existing_job_sources_are_secondary_international_vacancies() -> None:

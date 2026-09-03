@@ -262,6 +262,22 @@ python -m app.collectors.cli b2b_center --count 50
 Источник управляется переменными `IT_RADAR_B2B_CENTER_ENABLED` и
 `IT_RADAR_B2B_CENTER_TIMEOUT_SECONDS`.
 
+### Telegram whitelist
+
+Telegram-сборщик читает только публичные web-preview явно перечисленных каналов. По
+умолчанию whitelist содержит `job_for_bots` и `FreeVacanciesIT`; список задаётся JSON в
+`IT_RADAR_TELEGRAM_SOURCE_WHITELIST`. Для каждого элемента указываются `username`,
+`enabled` и категория `freelance` либо `projects`. Приватные каналы, общий поиск и
+пользовательские аккаунты не используются.
+
+```bash
+python -m app.collectors.cli telegram --count 20
+```
+
+Каждый текстовый пост сохраняется как кандидат. AI-классификатор определяет
+`is_opportunity` и `opportunity_probability`; реклама, статьи и другие нецелевые посты
+с `is_opportunity=false` не передаются в matching и ежедневный дайджест.
+
 Правила использования Jobicy требуют сохранять атрибуцию и каноническую ссылку,
 не выдавать объявления за собственные и не выполнять автоматический опрос чаще
 одного раза в час. IT Radar сохраняет исходный Jobicy URL; планировщик с частым

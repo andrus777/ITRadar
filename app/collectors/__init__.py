@@ -8,6 +8,11 @@ from app.collectors.freelance_ru import FreelanceRuCollector
 from app.collectors.jobicy import JobicyCollector
 from app.collectors.procurement import ProcurementCollectorAdapter
 from app.collectors.remoteok import RemoteOKCollector
+from app.collectors.telegram import (
+    TelegramChannelCollector,
+    TelegramChannelConfig,
+    parse_telegram_whitelist,
+)
 from app.collectors.weworkremotely import WeWorkRemotelyCollector
 from app.collectors.workspace import WorkspaceCollector
 
@@ -21,6 +26,9 @@ __all__ = [
     "JobicyCollector",
     "ProcurementCollectorAdapter",
     "RemoteOKCollector",
+    "TelegramChannelCollector",
+    "TelegramChannelConfig",
     "WeWorkRemotelyCollector",
     "WorkspaceCollector",
+    "parse_telegram_whitelist",
 ]
