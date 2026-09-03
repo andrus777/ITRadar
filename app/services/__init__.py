@@ -6,6 +6,7 @@ from app.services.dashboard import DashboardService
 from app.services.deduplication import DeduplicationService
 from app.services.digest import DigestSender, DigestService
 from app.services.matching import MatchingEngine
+from app.services.matching_recalculation import MatchingRecalculationService
 from app.services.normalization import OpportunityNormalizationService
 from app.services.operations import OperationsService
 from app.services.opportunity_browser import OpportunityBrowserService
@@ -24,6 +25,7 @@ __all__ = [
     "DigestSender",
     "DigestService",
     "MatchingEngine",
+    "MatchingRecalculationService",
     "OpportunityNormalizationService",
     "OpportunityStorageService",
     "OperationsService",

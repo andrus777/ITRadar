@@ -80,3 +80,7 @@ class MatchRepository:
             .execution_options(populate_existing=True)
         )
         return (await self.session.scalars(statement)).one()
+
+    async def scores(self, *, user_profile_id: int) -> list[int]:
+        query = select(Match.score).where(Match.user_profile_id == user_profile_id)
+        return list(await self.session.scalars(query))

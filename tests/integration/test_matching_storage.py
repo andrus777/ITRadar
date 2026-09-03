@@ -11,6 +11,7 @@ from app.models import AIAnalysis, Match
 from app.schemas import DeveloperProfile, UserProfileCreate
 from app.services import MatchingEngine, OpportunityStorageService
 from app.services.developer_profile import DeveloperProfileService
+from app.services.matching_recalculation import MatchingRecalculationService
 
 pytestmark = pytest.mark.integration
 
@@ -91,6 +92,10 @@ async def test_match_score_and_reasons_are_upserted() -> None:
             )
             assert updated.technology_weights == {"fastapi": 9}
             assert profile.technologies == ["fastapi"]
+
+            recalculated = await MatchingRecalculationService(session).recalculate(profile.id)
+            assert recalculated.processed == 1
+            assert recalculated.distribution.low == 1
 
             await session.close()
             await transaction.rollback()

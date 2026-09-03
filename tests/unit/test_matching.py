@@ -122,3 +122,18 @@ def test_missing_technology_and_non_remote_are_scored_separately() -> None:
     remote = next(reason for reason in result.reasons if reason.factor == "remote")
     assert technology.matched is False
     assert remote.matched is False
+
+
+def test_technology_weights_scale_the_deterministic_score() -> None:
+    result = MatchingEngine().calculate(
+        profile(
+            technologies=["python", "fastapi"],
+            technology_weights={"python": 10, "fastapi": 5},
+        ),
+        opportunity(),
+        analysis(technologies=["FastAPI"]),
+    )
+
+    technology = next(reason for reason in result.reasons if reason.factor == "technologies")
+    assert technology.points == 12
+    assert result.score == 77

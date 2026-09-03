@@ -10,6 +10,7 @@ from app.desktop.services import (
     LocalCollectionRunner,
     LocalDashboardProvider,
     LocalDeveloperProfileProvider,
+    LocalMatchingProvider,
     LocalOpportunityProvider,
     LocalSourceProvider,
 )
@@ -42,6 +43,7 @@ def main() -> int:
         LocalSourceProvider(),
         LocalCollectionRunner(),
         LocalDeveloperProfileProvider(),
+        LocalMatchingProvider(),
     )
     window.show()
     event_loop.create_task(window.dashboard_view.refresh())

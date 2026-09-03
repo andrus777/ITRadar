@@ -70,7 +70,10 @@ class MatchingEngine:
         )
 
     def _technology_reason(self, profile: UserProfile, analysis: AIAnalysis | None) -> MatchReason:
-        wanted = {item.casefold() for item in profile.technologies}
+        weights = {
+            item.casefold(): weight for item, weight in (profile.technology_weights or {}).items()
+        }
+        wanted = set(weights) or {item.casefold() for item in profile.technologies}
         actual = {item.casefold() for item in (analysis.technologies or [])} if analysis else set()
         common = sorted(wanted & actual)
         if not wanted:
@@ -81,10 +84,19 @@ class MatchingEngine:
                 message="Ограничений по технологиям нет",
             )
         if common:
+            points = (
+                round(
+                    self.TECHNOLOGY_POINTS
+                    * sum(weights[item] for item in common)
+                    / sum(weights.values())
+                )
+                if weights
+                else self.TECHNOLOGY_POINTS
+            )
             return MatchReason(
                 factor="technologies",
                 matched=True,
-                points=self.TECHNOLOGY_POINTS,
+                points=points,
                 message=f"Совпали технологии: {', '.join(common)}",
             )
         return MatchReason(

@@ -2,7 +2,7 @@ import asyncio
 from decimal import Decimal
 
 from pydantic import ValidationError
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QThreadPool
 from PySide6.QtWidgets import (
     QAbstractItemView,
     QDoubleSpinBox,
@@ -19,19 +19,29 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from app.desktop.services.background_worker import BackgroundWorker
+from app.desktop.services.matching import MatchingProvider
 from app.desktop.services.profile import DeveloperProfileProvider
-from app.schemas import DeveloperProfile
+from app.schemas import (
+    DeveloperProfile,
+    MatchDistribution,
+    MatchingRecalculationProgress,
+    MatchingRecalculationResult,
+)
 
 
 class DeveloperProfileView(QWidget):
     def __init__(
         self,
         provider: DeveloperProfileProvider | None = None,
+        matching_provider: MatchingProvider | None = None,
         parent: QWidget | None = None,
     ) -> None:
         super().__init__(parent)
         self.provider = provider
+        self.matching_provider = matching_provider
         self.profile_id: int | None = None
+        self.matching_worker: BackgroundWorker | None = None
         self.setObjectName("developerProfileView")
         self._build_ui()
 
@@ -97,6 +107,26 @@ class DeveloperProfileView(QWidget):
         layout.addWidget(skills_label)
         layout.addWidget(self.skills, 1)
         layout.addLayout(skill_actions)
+
+        preview_title = QLabel("MATCHING PREVIEW")
+        preview_title.setObjectName("sectionTitle")
+        self.distribution_labels = {
+            "excellent": QLabel("90–100%\n0"),
+            "strong": QLabel("80–89%\n0"),
+            "possible": QLabel("70–79%\n0"),
+            "low": QLabel("<70%\n0"),
+        }
+        distribution = QHBoxLayout()
+        for label in self.distribution_labels.values():
+            label.setObjectName("distributionCard")
+            label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            distribution.addWidget(label)
+        self.recalculate_button = QPushButton("RECALCULATE SCORES")
+        self.recalculate_button.setObjectName("secondaryButton")
+        self.recalculate_button.clicked.connect(self.recalculate)
+        layout.addWidget(preview_title)
+        layout.addLayout(distribution)
+        layout.addWidget(self.recalculate_button)
         layout.addLayout(bottom)
 
     @staticmethod
@@ -116,6 +146,7 @@ class DeveloperProfileView(QWidget):
         self.save_button.setEnabled(False)
         try:
             self.set_profile(await self.provider.load())
+            await self.refresh_distribution()
         except Exception:
             self.feedback.setText("Не удалось загрузить профиль")
         else:
@@ -171,7 +202,7 @@ class DeveloperProfileView(QWidget):
         except Exception:
             self.feedback.setText("Не удалось сохранить профиль")
         else:
-            self.feedback.setText("Профиль сохранён")
+            self.feedback.setText("Profile updated. Выполните пересчёт scores.")
         finally:
             self.save_button.setEnabled(True)
 
@@ -191,6 +222,51 @@ class DeveloperProfileView(QWidget):
             max_budget=self._amount(self.max_budget.value()),
             exclude_keywords=self._terms(self.exclusions_edit.text()),
         )
+
+    async def refresh_distribution(self) -> None:
+        if self.matching_provider is None or self.profile_id is None:
+            return
+        self.set_distribution(await self.matching_provider.distribution(self.profile_id))
+
+    def set_distribution(self, value: MatchDistribution) -> None:
+        counts = {
+            "excellent": ("90–100%", value.excellent),
+            "strong": ("80–89%", value.strong),
+            "possible": ("70–79%", value.possible),
+            "low": ("<70%", value.low),
+        }
+        for key, (caption, count) in counts.items():
+            self.distribution_labels[key].setText(f"{caption}\n{count}")
+
+    def recalculate(self) -> None:
+        if (
+            self.matching_worker is not None
+            or self.matching_provider is None
+            or self.profile_id is None
+        ):
+            return
+        self.feedback.setText("Пересчёт matching scores…")
+        self.recalculate_button.setEnabled(False)
+        profile_id = self.profile_id
+        self.matching_worker = BackgroundWorker(
+            lambda emit, cancel: self.matching_provider.recalculate(profile_id, emit, cancel)
+        )
+        self.matching_worker.signals.progress.connect(self._matching_progress)
+        self.matching_worker.signals.result.connect(self._matching_complete)
+        self.matching_worker.signals.error.connect(self.feedback.setText)
+        self.matching_worker.signals.finished.connect(self._matching_finished)
+        QThreadPool.globalInstance().start(self.matching_worker)
+
+    def _matching_progress(self, value: MatchingRecalculationProgress) -> None:
+        self.feedback.setText(f"Пересчёт: {value.processed}/{value.total}")
+
+    def _matching_complete(self, value: MatchingRecalculationResult) -> None:
+        self.set_distribution(value.distribution)
+        self.feedback.setText(f"Scores recalculated: {value.processed}/{value.total}")
+
+    def _matching_finished(self) -> None:
+        self.matching_worker = None
+        self.recalculate_button.setEnabled(True)
 
     @staticmethod
     def _terms(value: str) -> list[str]:

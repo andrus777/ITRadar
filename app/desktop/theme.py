@@ -121,6 +121,16 @@ QLabel#kpiValue {
     font-weight: 650;
 }
 
+QLabel#distributionCard {
+    background-color: #20242d;
+    border: 1px solid #303744;
+    border-radius: 7px;
+    color: #75b7ff;
+    font-size: 16px;
+    font-weight: 650;
+    padding: 10px;
+}
+
 QFrame#systemStatus[state="ok"] QLabel#statusIndicator { color: #43c781; }
 QFrame#systemStatus[state="warning"] QLabel#statusIndicator { color: #f0b44c; }
 QFrame#systemStatus[state="failure"] QLabel#statusIndicator { color: #ef6262; }

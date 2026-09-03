@@ -21,6 +21,7 @@ from app.desktop.services import (
     DashboardProvider,
     DeveloperProfileProvider,
     LocalCollectionRunner,
+    MatchingProvider,
     OpportunityProvider,
     SourceProvider,
 )
@@ -107,6 +108,7 @@ class MainWindow(QMainWindow):
         source_provider: SourceProvider | None = None,
         collection_runner: LocalCollectionRunner | None = None,
         profile_provider: DeveloperProfileProvider | None = None,
+        matching_provider: MatchingProvider | None = None,
     ) -> None:
         super().__init__()
         self.setObjectName("mainWindow")
@@ -127,7 +129,7 @@ class MainWindow(QMainWindow):
         self.workspace.addWidget(self.sources_view)
         self.collection_view = CollectionView(source_provider, collection_runner)
         self.workspace.addWidget(self.collection_view)
-        self.profile_view = DeveloperProfileView(profile_provider)
+        self.profile_view = DeveloperProfileView(profile_provider, matching_provider)
         self.workspace.addWidget(self.profile_view)
         for item in NAVIGATION_ITEMS[5:]:
             self.workspace.addWidget(PlaceholderView(item))

@@ -10,6 +10,11 @@ from app.schemas.dashboard import (
     DashboardSystemStatus,
 )
 from app.schemas.matching import DeveloperProfile, MatchReason, MatchResult, UserProfileCreate
+from app.schemas.matching_recalculation import (
+    MatchDistribution,
+    MatchingRecalculationProgress,
+    MatchingRecalculationResult,
+)
 from app.schemas.operations import CollectionRunStatus, HealthStatus, ReadinessStatus
 from app.schemas.opportunity_details import OpportunityDetails, OpportunityUserStatus
 from app.schemas.opportunity_management import (
@@ -33,6 +38,9 @@ __all__ = [
     "DashboardSystemStatus",
     "NormalizedOpportunity",
     "MatchReason",
+    "MatchDistribution",
+    "MatchingRecalculationProgress",
+    "MatchingRecalculationResult",
     "DeveloperProfile",
     "MatchResult",
     "UserProfileCreate",
