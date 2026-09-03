@@ -16,8 +16,8 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from app.desktop.services import DashboardProvider
-from app.desktop.views import DashboardView
+from app.desktop.services import DashboardProvider, OpportunityProvider
+from app.desktop.views import DashboardView, OpportunitiesView
 
 
 @dataclass(frozen=True, slots=True)
@@ -87,7 +87,11 @@ class PlaceholderView(QWidget):
 class MainWindow(QMainWindow):
     """Main desktop shell shared by all IT Radar feature views."""
 
-    def __init__(self, dashboard_provider: DashboardProvider | None = None) -> None:
+    def __init__(
+        self,
+        dashboard_provider: DashboardProvider | None = None,
+        opportunity_provider: OpportunityProvider | None = None,
+    ) -> None:
         super().__init__()
         self.setObjectName("mainWindow")
         self.setWindowTitle("IT Radar Desktop")
@@ -99,7 +103,9 @@ class MainWindow(QMainWindow):
         self.workspace.setObjectName("workspace")
         self.dashboard_view = DashboardView(dashboard_provider)
         self.workspace.addWidget(self.dashboard_view)
-        for item in NAVIGATION_ITEMS[1:]:
+        self.opportunities_view = OpportunitiesView(opportunity_provider)
+        self.workspace.addWidget(self.opportunities_view)
+        for item in NAVIGATION_ITEMS[2:]:
             self.workspace.addWidget(PlaceholderView(item))
 
         shell = QWidget()

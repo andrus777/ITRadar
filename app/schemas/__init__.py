@@ -11,6 +11,12 @@ from app.schemas.dashboard import (
 )
 from app.schemas.matching import MatchReason, MatchResult, UserProfileCreate
 from app.schemas.operations import CollectionRunStatus, HealthStatus, ReadinessStatus
+from app.schemas.opportunity_management import (
+    OpportunityFilters,
+    OpportunityListItem,
+    OpportunityListPage,
+    OpportunitySortField,
+)
 
 __all__ = [
     "AIAnalysisRequest",
@@ -30,4 +36,8 @@ __all__ = [
     "CollectionRunStatus",
     "HealthStatus",
     "ReadinessStatus",
+    "OpportunityFilters",
+    "OpportunityListItem",
+    "OpportunityListPage",
+    "OpportunitySortField",
 ]

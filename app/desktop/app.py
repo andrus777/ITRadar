@@ -6,7 +6,7 @@ from PySide6.QtWidgets import QApplication
 from qasync import QEventLoop
 
 from app.desktop.main_window import MainWindow
-from app.desktop.services import LocalDashboardProvider
+from app.desktop.services import LocalDashboardProvider, LocalOpportunityProvider
 from app.desktop.theme import DARK_THEME
 
 
@@ -30,9 +30,10 @@ def main() -> int:
     application = create_application()
     event_loop = QEventLoop(application)
     asyncio.set_event_loop(event_loop)
-    window = MainWindow(LocalDashboardProvider())
+    window = MainWindow(LocalDashboardProvider(), LocalOpportunityProvider())
     window.show()
     event_loop.create_task(window.dashboard_view.refresh())
+    event_loop.create_task(window.opportunities_view.load(initial=True))
     application.aboutToQuit.connect(event_loop.stop)
     with event_loop:
         event_loop.run_forever()

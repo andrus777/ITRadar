@@ -59,7 +59,8 @@ QLabel#sectionTitle {
 }
 
 QFrame#kpiCard,
-QFrame#systemStatus {
+QFrame#systemStatus,
+QFrame#filterPanel {
     background-color: #20242d;
     border: 1px solid #303744;
     border-radius: 8px;
@@ -94,7 +95,36 @@ QPushButton#secondaryButton {
 QPushButton#secondaryButton:hover { background-color: #345d89; }
 QPushButton#secondaryButton:disabled { color: #7f8999; background-color: #252b34; }
 
-QTableWidget#opportunitiesTable {
+QPushButton#primaryButton {
+    background-color: #337ac1;
+    border: 1px solid #438bd2;
+    border-radius: 6px;
+    color: #ffffff;
+    font-weight: 600;
+    padding: 7px 15px;
+}
+
+QPushButton#primaryButton:hover { background-color: #3f89d2; }
+
+QLineEdit,
+QComboBox,
+QSpinBox,
+QDoubleSpinBox {
+    background-color: #171b22;
+    border: 1px solid #343b47;
+    border-radius: 5px;
+    min-height: 27px;
+    padding: 2px 7px;
+    selection-background-color: #315d89;
+}
+
+QLineEdit:focus,
+QComboBox:focus,
+QSpinBox:focus,
+QDoubleSpinBox:focus { border-color: #4d8bc9; }
+
+QTableWidget#opportunitiesTable,
+QTableView#opportunityManagementTable {
     background-color: #1b1f27;
     alternate-background-color: #1f242d;
     border: 1px solid #303744;
@@ -104,6 +134,9 @@ QTableWidget#opportunitiesTable {
 }
 
 QTableWidget#opportunitiesTable::item { padding: 7px; }
+QTableView#opportunityManagementTable::item { padding: 6px; }
+
+QLabel#paginationLabel { color: #cbd3df; padding: 0 8px; }
 
 QHeaderView::section {
     background-color: #252a34;
