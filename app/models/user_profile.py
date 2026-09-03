@@ -9,6 +9,7 @@ from app.db.base import Base, TimestampMixin
 
 if TYPE_CHECKING:
     from app.models.match import Match
+    from app.models.opportunity_user_state import OpportunityUserState
 
 
 class UserProfile(TimestampMixin, Base):
@@ -30,5 +31,8 @@ class UserProfile(TimestampMixin, Base):
     remote_only: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false")
 
     matches: Mapped[list["Match"]] = relationship(
+        back_populates="profile", cascade="all, delete-orphan"
+    )
+    opportunity_states: Mapped[list["OpportunityUserState"]] = relationship(
         back_populates="profile", cascade="all, delete-orphan"
     )

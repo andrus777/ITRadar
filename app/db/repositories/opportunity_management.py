@@ -1,11 +1,11 @@
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 
-from sqlalchemy import Integer, cast, func, literal, or_, select
+from sqlalchemy import Integer, String, cast, func, literal, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql.elements import ColumnElement
 
-from app.models import Match, Opportunity, Source
+from app.models import Match, Opportunity, OpportunityUserState, Source
 from app.schemas.opportunity_management import OpportunityFilters
 
 
@@ -39,10 +39,16 @@ class OpportunityManagementRepository:
         if profile_id is None:
             score_column = cast(literal(None), Integer)
             match_condition = None
+            status_column = cast(literal("new"), String)
+            state_condition = None
         else:
             score_column = Match.score
             match_condition = (Match.opportunity_id == Opportunity.id) & (
                 Match.user_profile_id == profile_id
+            )
+            status_column = func.coalesce(OpportunityUserState.status, "new")
+            state_condition = (OpportunityUserState.opportunity_id == Opportunity.id) & (
+                OpportunityUserState.user_profile_id == profile_id
             )
 
         columns = (
@@ -57,7 +63,7 @@ class OpportunityManagementRepository:
             Opportunity.technologies,
             Opportunity.budget_text,
             Opportunity.published_at,
-            Opportunity.status,
+            status_column,
         )
         query = select(*columns).join(Source, Source.id == Opportunity.source_id)
         count_query = select(func.count(Opportunity.id)).join(
@@ -66,8 +72,14 @@ class OpportunityManagementRepository:
         if match_condition is not None:
             query = query.outerjoin(Match, match_condition)
             count_query = count_query.outerjoin(Match, match_condition)
+        if state_condition is not None:
+            query = query.outerjoin(OpportunityUserState, state_condition)
+            count_query = count_query.outerjoin(OpportunityUserState, state_condition)
 
-        conditions = [Opportunity.duplicate_of_id.is_(None)]
+        conditions = [
+            Opportunity.duplicate_of_id.is_(None),
+            Opportunity.status == "active",
+        ]
         if filters.search.strip():
             pattern = f"%{filters.search.strip()}%"
             conditions.append(
@@ -100,7 +112,7 @@ class OpportunityManagementRepository:
                 cutoff = now - timedelta(days=filters.published_days)
             conditions.append(Opportunity.published_at >= cutoff)
         if filters.status:
-            conditions.append(Opportunity.status == filters.status)
+            conditions.append(status_column == filters.status)
 
         query = query.where(*conditions)
         count_query = count_query.where(*conditions)
@@ -112,7 +124,7 @@ class OpportunityManagementRepository:
             "category": Opportunity.category,
             "budget": func.coalesce(Opportunity.budget_from, Opportunity.budget_to),
             "published": Opportunity.published_at,
-            "status": Opportunity.status,
+            "status": status_column,
         }
         sort_column = sort_columns[filters.sort_by]
         ordering = sort_column.desc() if filters.sort_descending else sort_column.asc()

@@ -11,6 +11,7 @@ from app.schemas.dashboard import (
 )
 from app.schemas.matching import MatchReason, MatchResult, UserProfileCreate
 from app.schemas.operations import CollectionRunStatus, HealthStatus, ReadinessStatus
+from app.schemas.opportunity_details import OpportunityDetails, OpportunityUserStatus
 from app.schemas.opportunity_management import (
     OpportunityFilters,
     OpportunityListItem,
@@ -40,4 +41,6 @@ __all__ = [
     "OpportunityListItem",
     "OpportunityListPage",
     "OpportunitySortField",
+    "OpportunityDetails",
+    "OpportunityUserStatus",
 ]

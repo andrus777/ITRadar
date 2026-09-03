@@ -148,7 +148,18 @@ class OpportunitiesView(QWidget):
                 ("30 дней", 30),
             )
         )
-        self.status_combo = self._combo((("Все статусы", None), ("Active", "active")))
+        self.status_combo = self._combo(
+            (
+                ("Все статусы", None),
+                ("New", "new"),
+                ("Interesting", "interesting"),
+                ("Reviewing", "reviewing"),
+                ("Responded", "responded"),
+                ("Won", "won"),
+                ("Lost", "lost"),
+                ("Ignored", "ignored"),
+            )
+        )
         apply_button = QPushButton("Применить")
         apply_button.setObjectName("primaryButton")
         reset_button = QPushButton("Сбросить")

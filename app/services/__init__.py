@@ -9,6 +9,7 @@ from app.services.matching import MatchingEngine
 from app.services.normalization import OpportunityNormalizationService
 from app.services.operations import OperationsService
 from app.services.opportunity_browser import OpportunityBrowserService
+from app.services.opportunity_details import OpportunityDetailsService
 from app.services.opportunity_management import OpportunityManagementService
 from app.services.opportunity_storage import OpportunityStorageService
 from app.services.pipeline import PipelineReport, PipelineService
@@ -26,6 +27,7 @@ __all__ = [
     "OpportunityStorageService",
     "OperationsService",
     "OpportunityBrowserService",
+    "OpportunityDetailsService",
     "OpportunityManagementService",
     "PipelineReport",
     "PipelineService",

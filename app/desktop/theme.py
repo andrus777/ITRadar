@@ -51,6 +51,27 @@ QLabel#pageTitle {
     font-weight: 600;
 }
 
+QLabel#dialogTitle {
+    color: #f5f7fb;
+    font-size: 22px;
+    font-weight: 650;
+}
+
+QLabel#dialogScore {
+    background-color: #252b34;
+    border: 1px solid #394251;
+    border-radius: 8px;
+    font-size: 22px;
+    font-weight: 700;
+    min-width: 72px;
+    padding: 10px;
+}
+
+QLabel#dialogScore[level="excellent"] { color: #43c781; }
+QLabel#dialogScore[level="good"] { color: #75b7ff; }
+QLabel#dialogScore[level="medium"] { color: #f0b44c; }
+QLabel#dialogScore[level="low"] { color: #8e98aa; }
+
 QLabel#sectionTitle {
     color: #cbd3df;
     font-size: 12px;
@@ -65,6 +86,25 @@ QFrame#filterPanel {
     border: 1px solid #303744;
     border-radius: 8px;
 }
+
+QFrame#detailsSection {
+    background-color: #20242d;
+    border: 1px solid #303744;
+    border-radius: 7px;
+}
+
+QLabel#detailsSectionText { color: #d5dae3; }
+QLabel#metadataKey { color: #8e98aa; font-weight: 600; }
+
+QTextBrowser#detailsText {
+    background-color: #1b1f27;
+    border: 1px solid #303744;
+    border-radius: 7px;
+    min-height: 130px;
+    padding: 8px;
+}
+
+QScrollArea#detailsScroll { background: transparent; }
 
 QLabel#kpiLabel,
 QLabel#kpiDetail,

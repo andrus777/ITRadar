@@ -16,6 +16,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from app.desktop.dialogs import OpportunityDialog
 from app.desktop.services import DashboardProvider, OpportunityProvider
 from app.desktop.views import DashboardView, OpportunitiesView
 
@@ -102,6 +103,8 @@ class MainWindow(QMainWindow):
         self.workspace = QStackedWidget()
         self.workspace.setObjectName("workspace")
         self.dashboard_view = DashboardView(dashboard_provider)
+        self.opportunity_provider = opportunity_provider
+        self._opportunity_dialogs: list[OpportunityDialog] = []
         self.workspace.addWidget(self.dashboard_view)
         self.opportunities_view = OpportunitiesView(opportunity_provider)
         self.workspace.addWidget(self.opportunities_view)
@@ -118,6 +121,8 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(shell)
 
         self.navigation_list.currentRowChanged.connect(self._open_page)
+        self.dashboard_view.opportunity_activated.connect(self._open_opportunity)
+        self.opportunities_view.opportunity_activated.connect(self._open_opportunity)
         self.navigation_list.setCurrentRow(0)
         self.setStatusBar(self._build_status_bar())
 
@@ -168,3 +173,18 @@ class MainWindow(QMainWindow):
     def _open_page(self, index: int) -> None:
         if 0 <= index < self.workspace.count():
             self.workspace.setCurrentIndex(index)
+
+    def _open_opportunity(self, opportunity_id: int) -> None:
+        dialog = OpportunityDialog(opportunity_id, self.opportunity_provider, self)
+        self._opportunity_dialogs.append(dialog)
+        dialog.finished.connect(lambda: self._forget_dialog(dialog))
+        dialog.status_changed.connect(
+            lambda _opportunity_id, _status: self.opportunities_view.request_refresh()
+        )
+        dialog.show()
+        dialog.request_load()
+
+    def _forget_dialog(self, dialog: OpportunityDialog) -> None:
+        if dialog in self._opportunity_dialogs:
+            self._opportunity_dialogs.remove(dialog)
+        dialog.deleteLater()

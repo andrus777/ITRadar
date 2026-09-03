@@ -21,6 +21,7 @@ from app.db.base import Base, TimestampMixin
 if TYPE_CHECKING:
     from app.models.ai_analysis import AIAnalysis
     from app.models.match import Match
+    from app.models.opportunity_user_state import OpportunityUserState
     from app.models.source import Source
 
 
@@ -100,5 +101,8 @@ class Opportunity(TimestampMixin, Base):
         cascade="all, delete-orphan",
     )
     matches: Mapped[list["Match"]] = relationship(
+        back_populates="opportunity", cascade="all, delete-orphan"
+    )
+    user_states: Mapped[list["OpportunityUserState"]] = relationship(
         back_populates="opportunity", cascade="all, delete-orphan"
     )
