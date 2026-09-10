@@ -2,7 +2,7 @@ import asyncio
 from datetime import datetime
 from decimal import Decimal
 
-from PySide6.QtCore import QThreadPool
+from PySide6.QtCore import QThreadPool, Signal
 from PySide6.QtWidgets import (
     QCheckBox,
     QFormLayout,
@@ -23,6 +23,8 @@ from app.schemas import TelegramActionResult, TelegramConfiguration, TelegramOve
 
 
 class TelegramView(QWidget):
+    action_completed = Signal(str)
+
     def __init__(
         self, provider: TelegramProvider | None = None, parent: QWidget | None = None
     ) -> None:
@@ -204,6 +206,7 @@ class TelegramView(QWidget):
 
     def _action_complete(self, result: TelegramActionResult) -> None:
         self.feedback.setText(result.message)
+        self.action_completed.emit(result.message)
         if result.message.startswith("Connected:"):
             self.bot_status.setText(result.message)
         if result.preview:

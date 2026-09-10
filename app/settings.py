@@ -45,6 +45,7 @@ class Settings(BaseSettings):
     ai_base_url: str = "https://api.openai.com/v1"
     ai_model: str = "gpt-5-mini"
     ai_prompt_version: str = "v1"
+    ai_temperature: float = Field(default=0, ge=0, le=2)
     ai_timeout_seconds: float = Field(default=60, gt=0)
     telegram_bot_token: SecretStr | None = None
     telegram_default_profile_id: int | None = Field(default=None, gt=0)

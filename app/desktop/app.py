@@ -30,6 +30,7 @@ def create_application(argv: Sequence[str] | None = None) -> QApplication:
     application.setApplicationName("IT Radar Desktop")
     application.setApplicationDisplayName("IT Radar")
     application.setOrganizationName("IT Radar")
+    application.setQuitOnLastWindowClosed(False)
     application.setStyle("Fusion")
     application.setStyleSheet(DARK_THEME)
     return application

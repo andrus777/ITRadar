@@ -115,6 +115,13 @@ QTextBrowser#telegramPreview {
     padding: 10px;
 }
 
+QFrame#settingsPanel {
+    background-color: #20242d;
+    border: 1px solid #303744;
+    border-radius: 7px;
+    padding: 10px;
+}
+
 QScrollArea#detailsScroll { background: transparent; }
 
 QLabel#kpiLabel,

@@ -1,17 +1,21 @@
 from dataclasses import dataclass
 
-from PySide6.QtCore import Qt
+from PySide6.QtCore import QEvent, Qt
+from PySide6.QtGui import QAction, QCloseEvent
 from PySide6.QtWidgets import (
+    QApplication,
     QFrame,
     QHBoxLayout,
     QLabel,
     QListWidget,
     QListWidgetItem,
     QMainWindow,
+    QMenu,
     QSizePolicy,
     QStackedWidget,
     QStatusBar,
     QStyle,
+    QSystemTrayIcon,
     QVBoxLayout,
     QWidget,
 )
@@ -32,6 +36,7 @@ from app.desktop.views import (
     DeveloperProfileView,
     LogsView,
     OpportunitiesView,
+    SettingsView,
     SourcesView,
     TelegramView,
 )
@@ -139,8 +144,8 @@ class MainWindow(QMainWindow):
         self.workspace.addWidget(self.telegram_view)
         self.logs_view = LogsView()
         self.workspace.addWidget(self.logs_view)
-        for item in NAVIGATION_ITEMS[7:]:
-            self.workspace.addWidget(PlaceholderView(item))
+        self.settings_view = SettingsView()
+        self.workspace.addWidget(self.settings_view)
 
         shell = QWidget()
         shell.setObjectName("applicationShell")
@@ -156,6 +161,9 @@ class MainWindow(QMainWindow):
         self.opportunities_view.opportunity_activated.connect(self._open_opportunity)
         self.navigation_list.setCurrentRow(0)
         self.setStatusBar(self._build_status_bar())
+        self.tray_icon = self._build_tray()
+        self.collection_view.collection_finished.connect(self.notify)
+        self.telegram_view.action_completed.connect(self.notify)
 
     def _build_navigation(self) -> QFrame:
         sidebar = QFrame()
@@ -219,3 +227,58 @@ class MainWindow(QMainWindow):
         if dialog in self._opportunity_dialogs:
             self._opportunity_dialogs.remove(dialog)
         dialog.deleteLater()
+
+    def _build_tray(self) -> QSystemTrayIcon:
+        icon = self.style().standardIcon(QStyle.StandardPixmap.SP_ComputerIcon)
+        tray = QSystemTrayIcon(icon, self)
+        tray.setToolTip("IT Radar")
+        menu = QMenu(self)
+        open_action = QAction("Open IT Radar", self)
+        open_action.triggered.connect(self._restore_window)
+        run_action = QAction("Run Collection", self)
+        run_action.triggered.connect(self.collection_view.run_all)
+        digest_action = QAction("Send Digest", self)
+        digest_action.triggered.connect(lambda: self.telegram_view.run_action("send"))
+        pause_action = QAction("Pause Collection", self)
+        pause_action.triggered.connect(self.collection_view.stop)
+        exit_action = QAction("Exit", self)
+        exit_action.triggered.connect(QApplication.instance().quit)
+        for action in (open_action, run_action, digest_action, pause_action):
+            menu.addAction(action)
+        menu.addSeparator()
+        menu.addAction(exit_action)
+        tray.setContextMenu(menu)
+        tray.activated.connect(
+            lambda reason: (
+                self._restore_window()
+                if reason == QSystemTrayIcon.ActivationReason.DoubleClick
+                else None
+            )
+        )
+        if QSystemTrayIcon.isSystemTrayAvailable():
+            tray.show()
+        return tray
+
+    def notify(self, message: str) -> None:
+        if QSystemTrayIcon.supportsMessages():
+            self.tray_icon.showMessage(
+                "IT Radar", message, QSystemTrayIcon.MessageIcon.Information, 5000
+            )
+
+    def _restore_window(self) -> None:
+        self.showNormal()
+        self.raise_()
+        self.activateWindow()
+
+    def changeEvent(self, event: QEvent) -> None:
+        if event.type() == QEvent.Type.WindowStateChange and self.isMinimized():
+            self.hide()
+        super().changeEvent(event)
+
+    def closeEvent(self, event: QCloseEvent) -> None:
+        if self.tray_icon.isVisible():
+            self.hide()
+            event.ignore()
+            self.notify("IT Radar продолжает работать в системном трее")
+            return
+        super().closeEvent(event)

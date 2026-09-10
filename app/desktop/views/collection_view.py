@@ -1,6 +1,6 @@
 import asyncio
 
-from PySide6.QtCore import Qt, QThreadPool
+from PySide6.QtCore import Qt, QThreadPool, Signal
 from PySide6.QtWidgets import (
     QHBoxLayout,
     QHeaderView,
@@ -24,6 +24,7 @@ from app.schemas.source_management import SourceSummary
 
 
 class CollectionView(QWidget):
+    collection_finished = Signal(str)
     columns = ("Run", "Source", "State", "Received", "New", "Duplicates", "Rejected", "Error")
 
     def __init__(
@@ -179,7 +180,9 @@ class CollectionView(QWidget):
 
     def _on_result(self, result: CollectionBatchResult) -> None:
         suffix = " (остановлено)" if result.cancelled else ""
-        self.feedback.setText(f"Завершено: {result.completed}/{result.total}{suffix}")
+        message = f"Завершено: {result.completed}/{result.total}{suffix}"
+        self.feedback.setText(message)
+        self.collection_finished.emit(message)
 
     def _on_finished(self) -> None:
         self.worker = None
