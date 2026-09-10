@@ -69,7 +69,8 @@ def test_main_window_navigation_switches_workspace() -> None:
 
     assert window.workspace.currentWidget().objectName() == "telegramView"
     assert window.statusBar().currentMessage() == "Ready"
-    assert window.workspace.widget(7).objectName() == "settingsView"
+    assert window.workspace.widget(6).objectName() == "analyticsView"
+    assert window.workspace.widget(8).objectName() == "settingsView"
     assert [
         action.text() for action in window.tray_icon.contextMenu().actions() if action.text()
     ] == [

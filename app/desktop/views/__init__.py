@@ -1,3 +1,4 @@
+from app.desktop.views.analytics_view import AnalyticsView
 from app.desktop.views.collection_view import CollectionView
 from app.desktop.views.dashboard_view import DashboardView
 from app.desktop.views.logs_view import LogsView
@@ -8,6 +9,7 @@ from app.desktop.views.sources_view import SourcesView
 from app.desktop.views.telegram_view import TelegramView
 
 __all__ = [
+    "AnalyticsView",
     "CollectionView",
     "DashboardView",
     "DeveloperProfileView",

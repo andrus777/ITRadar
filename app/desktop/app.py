@@ -7,6 +7,7 @@ from qasync import QEventLoop
 
 from app.desktop.main_window import MainWindow
 from app.desktop.services import (
+    LocalAnalyticsProvider,
     LocalCollectionRunner,
     LocalDashboardProvider,
     LocalDeveloperProfileProvider,
@@ -50,6 +51,7 @@ def main() -> int:
         LocalDeveloperProfileProvider(),
         LocalMatchingProvider(),
         LocalTelegramProvider(),
+        LocalAnalyticsProvider(),
     )
     window.show()
     event_loop.create_task(window.dashboard_view.refresh())
@@ -58,6 +60,7 @@ def main() -> int:
     event_loop.create_task(window.collection_view.load())
     event_loop.create_task(window.profile_view.load())
     event_loop.create_task(window.telegram_view.load())
+    event_loop.create_task(window.analytics_view.refresh())
     application.aboutToQuit.connect(event_loop.stop)
     with event_loop:
         event_loop.run_forever()

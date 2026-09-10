@@ -1,3 +1,4 @@
+from app.desktop.services.analytics import AnalyticsProvider, LocalAnalyticsProvider
 from app.desktop.services.collection import LocalCollectionRunner
 from app.desktop.services.dashboard import DashboardProvider, LocalDashboardProvider
 from app.desktop.services.matching import LocalMatchingProvider, MatchingProvider
@@ -8,8 +9,10 @@ from app.desktop.services.sources import LocalSourceProvider, SourceProvider
 from app.desktop.services.telegram import LocalTelegramProvider, TelegramProvider
 
 __all__ = [
+    "AnalyticsProvider",
     "DashboardProvider",
     "LocalDashboardProvider",
+    "LocalAnalyticsProvider",
     "LocalMatchingProvider",
     "LocalOpportunityProvider",
     "MatchingProvider",

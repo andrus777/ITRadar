@@ -22,6 +22,7 @@ from PySide6.QtWidgets import (
 
 from app.desktop.dialogs import OpportunityDialog
 from app.desktop.services import (
+    AnalyticsProvider,
     DashboardProvider,
     DeveloperProfileProvider,
     LocalCollectionRunner,
@@ -31,6 +32,7 @@ from app.desktop.services import (
     TelegramProvider,
 )
 from app.desktop.views import (
+    AnalyticsView,
     CollectionView,
     DashboardView,
     DeveloperProfileView,
@@ -76,6 +78,9 @@ NAVIGATION_ITEMS = (
     NavigationItem(
         "telegram", "Telegram", "Бот и дайджест", QStyle.StandardPixmap.SP_MessageBoxInformation
     ),
+    NavigationItem(
+        "analytics", "Analytics", "Аналитика спроса", QStyle.StandardPixmap.SP_FileDialogListView
+    ),
     NavigationItem("logs", "Logs", "Журнал работы", QStyle.StandardPixmap.SP_FileIcon),
     NavigationItem(
         "settings",
@@ -118,6 +123,7 @@ class MainWindow(QMainWindow):
         profile_provider: DeveloperProfileProvider | None = None,
         matching_provider: MatchingProvider | None = None,
         telegram_provider: TelegramProvider | None = None,
+        analytics_provider: AnalyticsProvider | None = None,
     ) -> None:
         super().__init__()
         self.setObjectName("mainWindow")
@@ -142,6 +148,8 @@ class MainWindow(QMainWindow):
         self.workspace.addWidget(self.profile_view)
         self.telegram_view = TelegramView(telegram_provider)
         self.workspace.addWidget(self.telegram_view)
+        self.analytics_view = AnalyticsView(analytics_provider)
+        self.workspace.addWidget(self.analytics_view)
         self.logs_view = LogsView()
         self.workspace.addWidget(self.logs_view)
         self.settings_view = SettingsView()
