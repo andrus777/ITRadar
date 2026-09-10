@@ -15,6 +15,7 @@ from app.services.opportunity_management import OpportunityManagementService
 from app.services.opportunity_storage import OpportunityStorageService
 from app.services.pipeline import PipelineReport, PipelineService
 from app.services.source_management import SourceManagementService
+from app.services.telegram_management import TelegramManagementService
 
 __all__ = [
     "AIClassificationOutcome",
@@ -35,4 +36,5 @@ __all__ = [
     "PipelineReport",
     "PipelineService",
     "SourceManagementService",
+    "TelegramManagementService",
 ]

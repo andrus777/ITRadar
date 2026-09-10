@@ -24,6 +24,11 @@ from app.schemas.opportunity_management import (
     OpportunitySortField,
 )
 from app.schemas.source_management import SourceRunResult, SourceSummary
+from app.schemas.telegram_management import (
+    TelegramActionResult,
+    TelegramConfiguration,
+    TelegramOverview,
+)
 
 __all__ = [
     "AIAnalysisRequest",
@@ -55,4 +60,7 @@ __all__ = [
     "OpportunityUserStatus",
     "SourceRunResult",
     "SourceSummary",
+    "TelegramActionResult",
+    "TelegramConfiguration",
+    "TelegramOverview",
 ]

@@ -1,5 +1,6 @@
 from collections.abc import Awaitable
 from datetime import UTC, datetime
+from decimal import Decimal
 from typing import Protocol
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -23,6 +24,8 @@ class DigestService:
         min_score: int,
         batch_size: int = 20,
         include_international: bool = False,
+        min_budget: Decimal | None = None,
+        include_types: list[str] | None = None,
     ) -> None:
         self.repository = PipelineRepository(session)
         self.sender = sender
@@ -30,6 +33,8 @@ class DigestService:
         self.min_score = min_score
         self.batch_size = batch_size
         self.include_international = include_international
+        self.min_budget = min_budget
+        self.include_types = include_types or []
 
     async def send_pending(self) -> int:
         pending = await self.repository.pending_digest(
@@ -37,6 +42,8 @@ class DigestService:
             min_score=self.min_score,
             limit=self.batch_size,
             include_international=self.include_international,
+            min_budget=self.min_budget,
+            include_types=self.include_types,
         )
         sent = 0
         for item in pending:

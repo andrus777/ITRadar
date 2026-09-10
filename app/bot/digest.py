@@ -9,6 +9,9 @@ class TelegramDigestSender:
         self.bot = bot
         self.chat_id = chat_id
 
+    def set_chat_id(self, chat_id: int) -> None:
+        self.chat_id = chat_id
+
     async def send(self, card: OpportunityCard) -> None:
         page = OpportunityPage(
             card=card,

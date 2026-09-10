@@ -55,5 +55,6 @@ def build_runtime(settings: Settings) -> PipelineRuntime:
         collector_enabled_defaults={
             code: item.enabled_by_default for code, item in registrations.items()
         },
+        digest_configuration_settings=settings,
     )
     return PipelineRuntime(pipeline=pipeline, bot=bot)

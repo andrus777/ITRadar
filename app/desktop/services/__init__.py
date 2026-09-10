@@ -4,6 +4,7 @@ from app.desktop.services.matching import LocalMatchingProvider, MatchingProvide
 from app.desktop.services.opportunities import LocalOpportunityProvider, OpportunityProvider
 from app.desktop.services.profile import DeveloperProfileProvider, LocalDeveloperProfileProvider
 from app.desktop.services.sources import LocalSourceProvider, SourceProvider
+from app.desktop.services.telegram import LocalTelegramProvider, TelegramProvider
 
 __all__ = [
     "DashboardProvider",
@@ -16,5 +17,7 @@ __all__ = [
     "LocalDeveloperProfileProvider",
     "LocalSourceProvider",
     "SourceProvider",
+    "LocalTelegramProvider",
+    "TelegramProvider",
     "LocalCollectionRunner",
 ]

@@ -1,6 +1,7 @@
 from dataclasses import dataclass
+from decimal import Decimal
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.repositories.opportunity_browser import OpportunityCardRow
@@ -47,6 +48,8 @@ class PipelineRepository:
         min_score: int,
         limit: int,
         include_international: bool = False,
+        min_budget: Decimal | None = None,
+        include_types: list[str] | None = None,
     ) -> list[PendingDigest]:
         latest_analysis_id = (
             select(AIAnalysis.id)
@@ -88,5 +91,11 @@ class PipelineRepository:
         )
         if not include_international:
             query = query.where(Opportunity.market != "international")
+        if min_budget is not None:
+            query = query.where(
+                func.coalesce(Opportunity.budget_to, Opportunity.budget_from) >= min_budget
+            )
+        if include_types:
+            query = query.where(Opportunity.opportunity_type.in_(include_types))
         rows = (await self.session.execute(query)).all()
         return [PendingDigest(match=row[0], card=OpportunityCardRow(*row[1:])) for row in rows]

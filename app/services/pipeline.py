@@ -9,6 +9,8 @@ from app.services.ai_classifier import AIClassifierService
 from app.services.collector import CollectorService
 from app.services.digest import DigestSender, DigestService
 from app.services.matching import MatchingEngine
+from app.services.telegram_management import TelegramManagementService
+from app.settings import Settings
 
 
 @dataclass(slots=True)
@@ -34,6 +36,7 @@ class PipelineService:
         digest_batch_size: int = 20,
         include_international: bool = False,
         collector_enabled_defaults: dict[str, bool] | None = None,
+        digest_configuration_settings: Settings | None = None,
     ) -> None:
         self.session_factory = session_factory
         self.collectors = collectors
@@ -45,6 +48,7 @@ class PipelineService:
         self.digest_batch_size = digest_batch_size
         self.include_international = include_international
         self.collector_enabled_defaults = collector_enabled_defaults or {}
+        self.digest_configuration_settings = digest_configuration_settings
 
     async def run(self) -> PipelineReport:
         report = PipelineReport()
@@ -116,13 +120,37 @@ class PipelineService:
             return
         async with self.session_factory() as session:
             try:
+                min_score = self.digest_min_score
+                batch_size = self.digest_batch_size
+                include_international = self.include_international
+                min_budget = None
+                include_types = None
+                if self.digest_configuration_settings is not None:
+                    configuration = await TelegramManagementService(
+                        session, self.digest_configuration_settings
+                    ).configuration()
+                    if not configuration.enabled:
+                        return
+                    if configuration.chat_id is None:
+                        report.errors.append("digest skipped: Telegram Chat ID is not configured")
+                        return
+                    set_chat_id = getattr(self.digest_sender, "set_chat_id", None)
+                    if callable(set_chat_id):
+                        set_chat_id(configuration.chat_id)
+                    min_score = configuration.min_score
+                    batch_size = configuration.max_items
+                    include_international = configuration.include_international
+                    min_budget = configuration.min_budget
+                    include_types = configuration.include_types
                 report.notified_count = await DigestService(
                     session,
                     self.digest_sender,
                     profile_id=self.profile_id,
-                    min_score=self.digest_min_score,
-                    batch_size=self.digest_batch_size,
-                    include_international=self.include_international,
+                    min_score=min_score,
+                    batch_size=batch_size,
+                    include_international=include_international,
+                    min_budget=min_budget,
+                    include_types=include_types,
                 ).send_pending()
                 await session.commit()
             except Exception as exc:

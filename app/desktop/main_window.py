@@ -24,6 +24,7 @@ from app.desktop.services import (
     MatchingProvider,
     OpportunityProvider,
     SourceProvider,
+    TelegramProvider,
 )
 from app.desktop.views import (
     CollectionView,
@@ -31,6 +32,7 @@ from app.desktop.views import (
     DeveloperProfileView,
     OpportunitiesView,
     SourcesView,
+    TelegramView,
 )
 
 
@@ -109,6 +111,7 @@ class MainWindow(QMainWindow):
         collection_runner: LocalCollectionRunner | None = None,
         profile_provider: DeveloperProfileProvider | None = None,
         matching_provider: MatchingProvider | None = None,
+        telegram_provider: TelegramProvider | None = None,
     ) -> None:
         super().__init__()
         self.setObjectName("mainWindow")
@@ -131,7 +134,9 @@ class MainWindow(QMainWindow):
         self.workspace.addWidget(self.collection_view)
         self.profile_view = DeveloperProfileView(profile_provider, matching_provider)
         self.workspace.addWidget(self.profile_view)
-        for item in NAVIGATION_ITEMS[5:]:
+        self.telegram_view = TelegramView(telegram_provider)
+        self.workspace.addWidget(self.telegram_view)
+        for item in NAVIGATION_ITEMS[6:]:
             self.workspace.addWidget(PlaceholderView(item))
 
         shell = QWidget()

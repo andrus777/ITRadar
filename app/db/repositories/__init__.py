@@ -14,6 +14,7 @@ from app.db.repositories.pipeline import PendingDigest, PipelineRepository
 from app.db.repositories.raw_item import RawItemRepository
 from app.db.repositories.source import SourceRepository
 from app.db.repositories.source_management import SourceManagementRepository
+from app.db.repositories.telegram_management import TelegramManagementRepository
 
 __all__ = [
     "AIAnalysisRepository",
@@ -31,5 +32,6 @@ __all__ = [
     "RawItemRepository",
     "SourceRepository",
     "SourceManagementRepository",
+    "TelegramManagementRepository",
     "UserProfileRepository",
 ]

@@ -83,7 +83,8 @@ QFrame#kpiCard,
 QFrame#systemStatus,
 QFrame#filterPanel,
 QFrame#sourceDetailsPanel,
-QFrame#profilePanel {
+QFrame#profilePanel,
+QFrame#telegramPanel {
     background-color: #20242d;
     border: 1px solid #303744;
     border-radius: 8px;
@@ -104,6 +105,14 @@ QTextBrowser#detailsText {
     border-radius: 7px;
     min-height: 130px;
     padding: 8px;
+}
+
+QTextBrowser#telegramPreview {
+    background-color: #1b1f27;
+    border: 1px solid #303744;
+    border-radius: 7px;
+    min-height: 150px;
+    padding: 10px;
 }
 
 QScrollArea#detailsScroll { background: transparent; }

@@ -3,6 +3,7 @@ from app.desktop.views.dashboard_view import DashboardView
 from app.desktop.views.opportunities_view import OpportunitiesView
 from app.desktop.views.profile_view import DeveloperProfileView
 from app.desktop.views.sources_view import SourcesView
+from app.desktop.views.telegram_view import TelegramView
 
 __all__ = [
     "CollectionView",
@@ -10,4 +11,5 @@ __all__ = [
     "DeveloperProfileView",
     "OpportunitiesView",
     "SourcesView",
+    "TelegramView",
 ]

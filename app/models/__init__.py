@@ -7,6 +7,7 @@ from app.models.opportunity import Opportunity
 from app.models.opportunity_user_state import OpportunityUserState
 from app.models.raw_item import RawItem
 from app.models.source import Source
+from app.models.telegram_settings import TelegramSettings
 from app.models.user_profile import UserProfile
 
 __all__ = [
@@ -18,5 +19,6 @@ __all__ = [
     "RawItem",
     "Source",
     "SourceRun",
+    "TelegramSettings",
     "UserProfile",
 ]
