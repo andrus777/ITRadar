@@ -17,6 +17,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from app.desktop.i18n import tr
 from app.desktop.services.background_worker import BackgroundWorker
 from app.desktop.services.telegram import TelegramAction, TelegramProvider
 from app.schemas import TelegramActionResult, TelegramConfiguration, TelegramOverview
@@ -133,7 +134,8 @@ class TelegramView(QWidget):
     def set_overview(self, value: TelegramOverview) -> None:
         self.token_mask.setText(value.token_mask)
         self.bot_configured = value.configured
-        self.bot_status.setText("Configured" if value.configured else "Not configured")
+        self.bot_status.setText(tr("Configured" if value.configured else "Not configured"))
+        self.token_mask.setText(tr(value.token_mask))
         self.last_digest.setText(self._date(value.last_digest_at))
         self.next_digest.setText(self._date(value.next_digest_at))
         configuration = value.configuration

@@ -17,6 +17,7 @@ class DesktopSettings:
     ai_temperature: float
     ai_timeout_seconds: float
     retry_attempts: int
+    language: str
 
 
 class SettingsProvider:
@@ -30,6 +31,7 @@ class SettingsProvider:
         "ai_temperature": "IT_RADAR_AI_TEMPERATURE",
         "ai_timeout_seconds": "IT_RADAR_AI_TIMEOUT_SECONDS",
         "retry_attempts": "IT_RADAR_HTTP_RETRY_ATTEMPTS",
+        "language": "IT_RADAR_DESKTOP_LANGUAGE",
     }
 
     def __init__(self, settings: Settings | None = None, env_path: Path | None = None) -> None:
@@ -46,6 +48,7 @@ class SettingsProvider:
             ai_temperature=self.settings.ai_temperature,
             ai_timeout_seconds=self.settings.ai_timeout_seconds,
             retry_attempts=self.settings.http_retry_attempts,
+            language=self.settings.desktop_language,
         )
 
     async def test_database(self, database_url: str) -> None:
@@ -69,6 +72,7 @@ class SettingsProvider:
             self.KEYS["ai_temperature"]: str(value.ai_temperature),
             self.KEYS["ai_timeout_seconds"]: str(value.ai_timeout_seconds),
             self.KEYS["retry_attempts"]: str(value.retry_attempts),
+            self.KEYS["language"]: value.language,
         }
         result: list[str] = []
         seen: set[str] = set()

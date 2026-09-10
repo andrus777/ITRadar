@@ -5,6 +5,7 @@ from collections.abc import Sequence
 from PySide6.QtWidgets import QApplication
 from qasync import QEventLoop
 
+from app.desktop.i18n import localize_widget_tree
 from app.desktop.main_window import MainWindow
 from app.desktop.services import (
     LocalAnalyticsProvider,
@@ -40,7 +41,9 @@ def create_application(argv: Sequence[str] | None = None) -> QApplication:
 def main() -> int:
     """Run the IT Radar desktop application."""
     application = create_application()
-    configure_logging(get_settings().log_level, capture_for_desktop=True)
+    settings = get_settings()
+    application.setProperty("itRadarLanguage", settings.desktop_language)
+    configure_logging(settings.log_level, capture_for_desktop=True)
     event_loop = QEventLoop(application)
     asyncio.set_event_loop(event_loop)
     window = MainWindow(
@@ -53,6 +56,7 @@ def main() -> int:
         LocalTelegramProvider(),
         LocalAnalyticsProvider(),
     )
+    localize_widget_tree(window, settings.desktop_language)
     window.show()
     event_loop.create_task(window.dashboard_view.refresh())
     event_loop.create_task(window.opportunities_view.load(initial=True))

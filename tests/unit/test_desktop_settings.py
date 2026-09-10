@@ -23,6 +23,7 @@ def configuration() -> DesktopSettings:
         ai_temperature=0.4,
         ai_timeout_seconds=45,
         retry_attempts=4,
+        language="ru",
     )
 
 
@@ -37,6 +38,7 @@ def test_settings_provider_preserves_unrelated_env_and_updates_values(tmp_path: 
     assert "UNRELATED=value" in saved
     assert "IT_RADAR_AI_MODEL=radar-model" in saved
     assert "IT_RADAR_AI_API_KEY=new-key" in saved
+    assert "IT_RADAR_DESKTOP_LANGUAGE=ru" in saved
     assert "new-secret" in saved
 
 

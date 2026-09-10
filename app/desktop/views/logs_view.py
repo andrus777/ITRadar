@@ -14,6 +14,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from app.desktop.i18n import tr
 from app.logging import LogBufferHandler, LogEntry, desktop_log_buffer
 
 
@@ -177,7 +178,7 @@ class LogsView(QWidget):
 
     def toggle_pause(self) -> None:
         self.paused = not self.paused
-        self.pause_button.setText("RESUME" if self.paused else "PAUSE")
+        self.pause_button.setText(tr("RESUME" if self.paused else "PAUSE"))
         if not self.paused:
             self.refresh()
         else:

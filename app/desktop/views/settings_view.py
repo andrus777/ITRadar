@@ -1,6 +1,7 @@
 import asyncio
 
 from PySide6.QtWidgets import (
+    QComboBox,
     QDoubleSpinBox,
     QFormLayout,
     QFrame,
@@ -61,6 +62,9 @@ class SettingsView(QWidget):
         self.ai_timeout.setSuffix(" s")
         self.retries = QSpinBox()
         self.retries.setRange(1, 10)
+        self.language = QComboBox()
+        self.language.addItem("Русский", "ru")
+        self.language.addItem("English", "en")
         self.ai_temperature = QDoubleSpinBox()
         self.ai_temperature.setRange(0, 2)
         self.ai_temperature.setSingleStep(0.1)
@@ -70,6 +74,7 @@ class SettingsView(QWidget):
         ai_form.addRow("Temperature", self.ai_temperature)
         ai_form.addRow("Timeout", self.ai_timeout)
         ai_form.addRow("Retries", self.retries)
+        ai_form.addRow("Язык интерфейса / Language", self.language)
 
         self.feedback = QLabel()
         self.feedback.setObjectName("dashboardFeedback")
@@ -98,6 +103,7 @@ class SettingsView(QWidget):
         self.ai_temperature.setValue(value.ai_temperature)
         self.ai_timeout.setValue(value.ai_timeout_seconds)
         self.retries.setValue(value.retry_attempts)
+        self.language.setCurrentIndex(max(0, self.language.findData(value.language)))
 
     def value(self) -> DesktopSettings:
         return DesktopSettings(
@@ -108,6 +114,7 @@ class SettingsView(QWidget):
             ai_temperature=self.ai_temperature.value(),
             ai_timeout_seconds=self.ai_timeout.value(),
             retry_attempts=self.retries.value(),
+            language=str(self.language.currentData()),
         )
 
     def _update_database_parts(self, value: str) -> None:

@@ -64,6 +64,7 @@ class Settings(BaseSettings):
     http_retry_attempts: int = Field(default=3, ge=1, le=10)
     http_retry_backoff_seconds: float = Field(default=0.5, ge=0, le=60)
     log_level: str = "INFO"
+    desktop_language: str = Field(default="ru", pattern="^(ru|en)$")
 
 
 @lru_cache

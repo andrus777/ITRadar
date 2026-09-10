@@ -49,7 +49,7 @@ async def test_telegram_view_loads_saves_and_previews_without_exposing_token() -
     view = TelegramView(provider)
 
     await view.load()
-    assert view.bot_status.text() == "Configured"
+    assert view.bot_status.text() == "Настроено"
     assert view.token_mask.text() == "12345...ABCD"
     assert view.chat_id.text() == "123456789"
     assert view.configuration().include_types == ["project", "tender"]
