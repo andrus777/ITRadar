@@ -30,6 +30,7 @@ from app.desktop.views import (
     CollectionView,
     DashboardView,
     DeveloperProfileView,
+    LogsView,
     OpportunitiesView,
     SourcesView,
     TelegramView,
@@ -136,7 +137,9 @@ class MainWindow(QMainWindow):
         self.workspace.addWidget(self.profile_view)
         self.telegram_view = TelegramView(telegram_provider)
         self.workspace.addWidget(self.telegram_view)
-        for item in NAVIGATION_ITEMS[6:]:
+        self.logs_view = LogsView()
+        self.workspace.addWidget(self.logs_view)
+        for item in NAVIGATION_ITEMS[7:]:
             self.workspace.addWidget(PlaceholderView(item))
 
         shell = QWidget()

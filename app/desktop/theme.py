@@ -187,6 +187,7 @@ QDoubleSpinBox:focus { border-color: #4d8bc9; }
 QTableWidget#opportunitiesTable,
 QTableWidget#sourcesTable,
 QTableWidget#profileSkillsTable,
+QTableWidget#logsTable,
 QTableView#opportunityManagementTable {
     background-color: #1b1f27;
     alternate-background-color: #1f242d;
@@ -199,6 +200,7 @@ QTableView#opportunityManagementTable {
 QTableWidget#opportunitiesTable::item { padding: 7px; }
 QTableWidget#sourcesTable::item { padding: 7px; }
 QTableWidget#profileSkillsTable::item { padding: 7px; }
+QTableWidget#logsTable::item { padding: 6px; }
 QTableView#opportunityManagementTable::item { padding: 6px; }
 
 QLabel#paginationLabel { color: #cbd3df; padding: 0 8px; }

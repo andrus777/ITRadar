@@ -16,6 +16,8 @@ from app.desktop.services import (
     LocalTelegramProvider,
 )
 from app.desktop.theme import DARK_THEME
+from app.logging import configure_logging
+from app.settings import get_settings
 
 
 def create_application(argv: Sequence[str] | None = None) -> QApplication:
@@ -36,6 +38,7 @@ def create_application(argv: Sequence[str] | None = None) -> QApplication:
 def main() -> int:
     """Run the IT Radar desktop application."""
     application = create_application()
+    configure_logging(get_settings().log_level, capture_for_desktop=True)
     event_loop = QEventLoop(application)
     asyncio.set_event_loop(event_loop)
     window = MainWindow(
