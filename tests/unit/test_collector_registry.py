@@ -8,6 +8,7 @@ def test_disabled_source_is_removed_by_configuration() -> None:
         jobicy_enabled=True,
         remoteok_enabled=False,
         weworkremotely_enabled=True,
+        zakupki_44fz_enabled=True,
         jobicy_timeout_seconds=11,
         weworkremotely_timeout_seconds=17,
     )
@@ -23,6 +24,7 @@ def test_disabled_source_is_removed_by_configuration() -> None:
         "telegram_job_for_bots",
         "weworkremotely",
         "workspace",
+        "zakupki_44fz",
     }
     assert collectors["fl_ru"].market == "ru"
     assert collectors["jobicy"].timeout_seconds == 11
@@ -30,6 +32,7 @@ def test_disabled_source_is_removed_by_configuration() -> None:
     assert collectors["workspace"].market == "ru"
     assert collectors["freelance_ru"].default_opportunity_type == "freelance"
     assert collectors["b2b_center"].source_type == "procurement"
+    assert collectors["zakupki_44fz"].source_type == "procurement"
     assert collectors["telegram_job_for_bots"].source_type == "telegram"
 
 

@@ -10,6 +10,7 @@ from app.collectors.remoteok import RemoteOKCollector
 from app.collectors.telegram import TelegramChannelCollector, parse_telegram_whitelist
 from app.collectors.weworkremotely import WeWorkRemotelyCollector
 from app.collectors.workspace import WorkspaceCollector
+from app.collectors.zakupki_44fz import Zakupki44FZCollector
 from app.settings import Settings
 
 CollectorFactory = Callable[[], CollectorAdapter]
@@ -84,6 +85,20 @@ def available_collectors(settings: Settings) -> dict[str, CollectorRegistration]
             settings.workspace_enabled,
             lambda: WorkspaceCollector(
                 timeout_seconds=settings.workspace_timeout_seconds,
+                retry_attempts=settings.http_retry_attempts,
+                retry_backoff_seconds=settings.http_retry_backoff_seconds,
+            ),
+        ),
+        "zakupki_44fz": (
+            settings.zakupki_44fz_enabled,
+            lambda: Zakupki44FZCollector(
+                queries=tuple(
+                    value.strip()
+                    for value in settings.zakupki_44fz_queries.split(",")
+                    if value.strip()
+                ),
+                count=settings.zakupki_44fz_count,
+                timeout_seconds=settings.zakupki_44fz_timeout_seconds,
                 retry_attempts=settings.http_retry_attempts,
                 retry_backoff_seconds=settings.http_retry_backoff_seconds,
             ),

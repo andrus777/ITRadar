@@ -38,6 +38,13 @@ class Settings(BaseSettings):
     weworkremotely_timeout_seconds: float = Field(default=30, gt=0)
     workspace_enabled: bool = True
     workspace_timeout_seconds: float = Field(default=30, gt=0)
+    zakupki_44fz_enabled: bool = False
+    zakupki_44fz_timeout_seconds: float = Field(default=30, gt=0)
+    zakupki_44fz_count: int = Field(default=100, ge=1, le=500)
+    zakupki_44fz_queries: str = (
+        "разработка программного обеспечения,информационная система,"
+        "сопровождение программного обеспечения"
+    )
     freelance_ru_enabled: bool = True
     freelance_ru_timeout_seconds: float = Field(default=30, gt=0)
     freelance_ru_categories: str = "Веб-разработка и IT,Искусственный интеллект"

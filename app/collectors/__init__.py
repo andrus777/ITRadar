@@ -15,6 +15,7 @@ from app.collectors.telegram import (
 )
 from app.collectors.weworkremotely import WeWorkRemotelyCollector
 from app.collectors.workspace import WorkspaceCollector
+from app.collectors.zakupki_44fz import Zakupki44FZCollector
 
 __all__ = [
     "BaseSourceAdapter",
@@ -30,5 +31,6 @@ __all__ = [
     "TelegramChannelConfig",
     "WeWorkRemotelyCollector",
     "WorkspaceCollector",
+    "Zakupki44FZCollector",
     "parse_telegram_whitelist",
 ]
